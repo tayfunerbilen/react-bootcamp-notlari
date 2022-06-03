@@ -245,3 +245,193 @@ console.log('Bugünün tarihi', dayjs().format('YYYY-MM-DD'))
 ## ES6 Yenilikleri
 
 JavaScript'in ES6 sürümü ile gelen ve react yazarkende sıkça kullanacağımız yenilikleri tek tek inceleyelim. React ile geliştirme yaparken bunlara hakim olmak sizi projenizi yazarken daha özgüvenli olmanızı sağlayacaktır.
+
+### Arrow (Ok) Fonksiyonu
+
+Javascript'de bugüne kadar `function` anahtar kelimesiyle fonksiyon oluşturmuş olabilirsiniz. Ancak ES6 ile birlikte arrow fonksiyonları oluşturmak ve kullanmak çok daha kolay.
+
+Normal bir fonksiyon şöyle oluşturuluyor:
+
+```js
+function sayHi(name) {
+	return `Hi, ${name}`
+}
+```
+
+Bu fonksiyonunun aynısını arrow fonksiyonu ile oluşturmak isteseydik:
+
+```js
+const sayHi = (name) => {
+	return `Hi, ${name}`
+}
+```
+
+Eğer tek bir parametre alıyorsanız `()` kullanmadan da yazabilirsiniz.
+
+```js
+const sayHi = name => {
+	return `Hi, ${name}`
+}
+```
+
+Ve tek satıra bir return işlemi yapıyorsanız şöyle daha kısa olarak yazabilirdiniz:
+
+```js
+const sayHi = name => `Hi, ${name}`
+```
+
+### Modül Yapısı
+
+ES6 ile birlikte standart haline gelmiş dil seviyesinde bir modül yapımız var. Temel olarak yaptığımız kodlarımızı ayırmak ve ihtiyaç halinde bunları çağırarak kullanmak.
+
+`export` ile dosyalardan değişken, fonksiyon vs. dışa aktarabiliyoruz. Ve ihtiyaç halinde ilgili dosyayı `import` ederek export edilen değerlere ulaşıp kullanabiliyoruz.
+
+#### `export` işlemi
+
+Bir javascript dosyasından daha sonra kullanmak üzere hemen hemen her şeyi dışa aktarabiliriz. Örneğin bir değişken, bir fonksiyon, bir class vs.
+
+Dışa aktarırken `default` olarak ya da obje olarak aktarım yapabiliriz. Elbette bu aktarım türüne göre çağırırken bazı farklılıklar olacak.
+
+##### `default export` kullanımı
+
+Örneğin verdiğimiz değeri tersine çevirip geri döndüren bir fonksiyonumuz olsun. Ve bunu varsayılan olarak dışarı aktarmayı görelim.
+
+```js
+// utils.js
+function getReverseText(text) {
+  return text.split('').reverse().join('')
+}
+
+export default getReverseText
+```
+
+Şimdi de dışa aktarılan fonksiyonu bir başka dosyada çağırıp kullanalım.
+
+```js
+// app.js
+import getReverseTextFunction from "./utils.js"
+
+console.log(getReverseTextFunction('tayfun erbilen'))
+```
+
+Ve bunu node yardımı ile çalıştırıp testimizi yapalım.
+
+```shell
+node ./app.js
+```
+
+Sonuç olarak başarıyla terse çevrilmiş bir değer göreceğiz. Fark ettiğiniz üzere import ederken export edilen fonksiyonun adı yerine farklı bir isim kullandık. Çünkü varsayılan olarak dışa aktarılan değeri istediğimiz gibi isimlendirebiliriz.
+
+##### çoklu `export` kullanımı
+
+Varsayılan olarak export işlemi haricinde farklı şeyleri de dışa aktarmak isteyebiliriz. Bunu yapmak için `default` değeri olmadan dışa aktarmak gerekir. Aynı dosyada birkaç şeyi daha dışarı aktaralım.
+
+```js
+// utils.js
+const API_URL = 'https://api.test.com/'
+
+const secondsToTime = seconds => {
+  return new Date(seconds * 1000)
+    .toISOString()
+    .substr(11, 8)
+}
+
+function getReverseText(text) {
+  return text.split('').reverse().join('')
+}
+
+export default getReverseText
+
+export {
+  API_URL,
+  secondsToTime
+}
+```
+Şimdi bu dışa aktardığımız şeyleri yine kullanmayı deneyelim.
+
+```js
+// app.js
+import getReverseTextFunction, { API_URL, secondsToTime } from "./utils.js"
+
+console.log(getReverseTextFunction('tayfun erbilen'))
+console.log(API_URL)
+console.log(secondsToTime(360))
+```
+
+Gördüğünüz gibi varsayılan olarak dışa aktarmıyorsak obje içinde dışa aktarılanları alıp kullanmamız gerekiyor. Ve isimlendirme dışa aktarılanla birebir aynı olmalı.
+
+Ayrıca en altta `export {}` ile belirtmek yerine değişken ya da fonksiyonların başına koyarakta bu dışa aktarımı uygulayabilirdik.
+
+```js
+// utils.js
+export const API_URL = 'https://api.test.com/'
+
+export const secondsToTime = seconds => {
+  return new Date(seconds * 1000)
+    .toISOString()
+    .substr(11, 8)
+}
+
+export default function getReverseText(text) {
+  return text.split('').reverse().join('')
+}
+```
+
+##### `as` ile dışa aktarılanı yeniden isimlendirme
+
+Değişken, fonksiyon ya da sınıfları dışa aktarırken farklı bir isimle kullanmak isterseniz `as` ile yeniden izimlendirip dışa aktarabilirsiniz.
+
+```js
+// ...
+
+export {
+  API_URL as BASE_URL,
+  secondsToTime as convertSeconds
+}
+```
+
+##### `as` ile içe aktarılanı yeniden isimlendirme
+
+İçe aktarılan değişken, fonksiyon ya da sınıfları yeniden isimlendirmek içinde `as` değerini kullanabilirsiniz.
+
+```js
+import getReverseText, { API_URL as BASE_URL, secondsToTime as convertSeconds } from "./utils.js";
+```
+
+##### `import *` kullanımı
+
+Tüm dışa aktarılanları tek bir isimde toplayıp kullanmak isterseniz `import *` değerinden sonra `as` ile isimlendirip kullanabilirsiniz.
+
+```js
+import * as Utils from "./utils.js"
+
+console.log(Utils)
+console.log(Utils.API_URL)
+console.log(Utils.default('tayfun erbilen'))
+```
+
+##### Dinamik import
+
+Bazı durumlarda dosyayı direk import etmek yerine ihtiyaç anında import edip kullanmak isteyebilirsiniz. İşte bu gibi durumlarda `import()` metodunu kullanacağız.
+
+Bu bize bir `Promise` dönecek. Henüz öğrenmediğimiz bir kavram ancak kullanımına bakalım, promise dersinde buraya dönüp tekrar incelersiniz kodu.
+
+```js
+setTimeout(() => {
+	console.log('import ediliyor..')
+	import('./utils.js')
+		.then(utils => {
+			console.log(utils)
+		})
+}, 2000)
+```
+
+Ayrıca yine henüz öğrenmediğimiz `async/await` yapısı ile de şöyle yapabilirdik:
+
+```js
+setTimeout(async () => {
+  console.log('import ediliyor..')
+  const utils = await import('./utils.js')
+  console.log(utils)
+}, 2000)
+```
