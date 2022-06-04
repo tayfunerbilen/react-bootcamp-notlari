@@ -783,28 +783,311 @@ showUser(user)
 
 Parametre olarak fonksiyon olan metodlara yüksek mertebe fonksiyonlar diyebiliriz. Javascript'de diziler için bir takım yüksek mertebe fonksiyonlar var, bunlara da sırasıyla bakalım.
 
+#### `includes()` metodu
+
+Bir ifadede aranan kelimenin geçip geçmediğini kontrol eder.
+Dizilerde ise eşleşen bir değer olup olmadığını kontrol eder.
+
+Örneğin dizide 7 değeri var mı kontrol edelim.
+
+```js
+const numbers = [1, 3, 5, 7]
+console.log(numbers.includes(7))
+```
+
+```js
+const numbers = [1, 3, 5, 7]
+const addNumber = number => {
+	if (!numbers.includes(number)) {
+		numbers.push(number)
+    }
+}
+addNumber(5)
+addNumber(5)
+addNumber(6)
+addNumber(7)
+addNumber(8)
+console.log(numbers)
+```
+
+Ayrıca 2. parametreye kaçıncı index'ten aramaya başlayacağını belirtebilirdik.
+
+```js
+const names = ['tayfun', 'gökhan', 'mehmet']
+console.log(names.includes('tayfun', 1))
+```
+
 #### `map()` metodu
+
+Dizi öğelerini manipüle ederek yeni bir dizi oluşturmanızı sağlar.
+
+Dizi içindeki sayıları 2 ile çarparak yeni bir dizi oluşturalım.
+
+```js
+const numbers = [1, 3, 5, 7]
+numbers.forEach((number, index) => numbers[index] = number * 2)
+const multiplyNumbers = numbers.map(number => number * 2)
+const multiplyNumbers = numbers.map(number => Math.sqrt(number))
+```
+
+Dizi içindeki objeleri değiştirerek yeni bir dizi oluşturalım.
+
+```js
+const users = [
+	{ name: 'Tayfun', surname: 'Erbilen', age: 29 },
+	{ name: 'Ahmet Tarık', surname: 'Günal', age: 25 },
+]
+
+const date = new Date()
+const newUsers = users.map(user => ({
+  fullName: `${user.name} ${user.surname}`,
+  dateOfBirth: date.getFullYear() - user.age
+}))
+
+console.log(newUsers)
+```
+
+Dizi içindeki todo item'larında sadece gönderdiğimiz id ile eşleşen todonun değerini değiştirelim.
+
+```js
+let todos = [
+	{ id: 1, text: 'todo 1', completed: false },
+	{ id: 2, text: 'todo 2', completed: false },
+	{ id: 3, text: 'todo 3', completed: false },
+]
+
+function completeTodo(id) {
+  todos = todos.map(todo => {
+    if (todo.id === id) {
+      todo.completed = true
+    }
+    return todo
+  })
+}
+
+completeTodo(2)
+console.log(todos)
+```
 
 ..
 
 #### `filter()` metodu
 
-...
+Dizi içindeki öğeleri belirli kriterlere göre filtrelemizi sağlar ve filtrelenmiş yeni bir dizi döndürür.
+
+Örneğin 2'ye bölünebilen ve kalanı 0 olan sayıları filtreyelim.
+
+```js
+const numbers = [1, 3, 4, 5, 7, 8, 10]
+
+console.log(
+  numbers.filter(number => number % 2 === 0)
+)
+```
+
+İsim uzunluğu 4 ve daha küçük olanları filtreyelim.
+
+```js
+const names = ['tayfun', 'cem', 'ece', 'burak', 'gül', 'mehmet', 'neşe']
+
+console.log(
+  names.filter(name => name.length <= 4)
+)
+```
+
+Yaşı sadece 29 olanları filtreyelim.
+
+```js
+const users = [
+  { name: 'Tayfun', age: 29 },
+  { name: 'Mehmet', age: 29 },
+  { name: 'Ahmet', age: 24 },
+  { name: 'Gökhan', age: 32 },
+]
+
+console.log(
+  users.filter(user => user.age === 29)
+)
+```
+
+İsimler içinde aradığımız değer geçenleri filtreleyelim.
+
+```js
+const names = ['tayfun', 'cem', 'ece', 'burak', 'gül', 'mehmet', 'neşe']
+
+console.log(
+  names.filter(name => name.includes('ce'))
+)
+
+const search = (keyword, array) => array.filter(item => item.toLocaleLowerCase('TR').includes(keyword.toLocaleLowerCase('TR')))
+console.log(
+  search('cE', names)
+)
+```
 
 #### `reduce()` metodu
 
-...
+Dizi öğelerini azaltarak tek bir değer haline getirmemizi sağlar.
+
+Sayılardan oluşan bir dizimiz olsun, bunların toplamını bir değişkene yazdırmak istesek ne yapardık?
+
+```js
+const numbers = [1, 3, 5, 7]
+
+let total = 0
+numbers.forEach(number => total += number)
+console.log('Toplam', total)
+```
+
+Bunun aynısını `reduce` ile yapmak isteseydik:
+
+```js
+let total = numbers.reduce((acc, number) => acc += number, 0)
+console.log(total)
+```
+
+Düşününki bir alışveriş sepetiniz var, sepetin toplam tutarını yazdırmak istiyorsunuz? Hadi gelin deneyelim.
+
+```js
+const basket = [
+  {
+    name: 'Ürün 1',
+    price: 1200
+  },
+  {
+    name: 'Ürün 2',
+    price: 1500
+  },
+  {
+    name: 'Ürün 3',
+    price: '15.00'
+  },
+]
+```
+
+Dizideki isimlerin kaç kere tekrarlandığını bulalım.
+
+```js
+const names = ['tayfun', 'mehmet', 'ahmet', 'gökhan', 'tayfun']
+
+const result = names.reduce((allNames, name) => {
+  if (name in allNames) {
+    allNames[name]++
+  } else {
+    allNames[name] = 1
+  }
+  return allNames
+}, {})
+console.log(result)
+```
+
+Belirli bir key'e göre gruplama yapalım.
+
+```js
+const users = [
+	{
+		name: "Tayfun",
+		role: 'admin'
+	},
+	{
+		name: 'Mehmet',
+		role: 'user'
+	},
+	{
+		name: 'Gökhan',
+		role: 'super-admin'
+	},
+	{
+		name: 'Ahmet',
+		role: 'user'
+	}
+]
+
+let group = 'role'
+const groupedUsers = users.reduce((acc, user) => {
+	let key = user[group]
+	if ( !acc[key] ) {
+		acc[key] = []
+	}
+	acc[key].push({name: user.name})
+	return acc
+}, {})
+console.log(groupedUsers)
+```
+
+Post'larda etiketlerin tamamını alıp tekilleştirelim.
+
+```js
+const posts = [
+	{ name: 'Post1', tags: ['html', 'css'] },
+	{ name: 'Post2', tags: ['css', 'php'] },
+	{ name: 'Post3', tags: ['react', 'js'] },
+	{ name: 'Post4', tags: ['react', 'js'] },
+]
+const allTags = posts.reduce((acc, post) => [...acc.filter, ...post.tags], [])
+for (let value of new Set(allTags).values()) {
+	console.log(value)
+}
+```
+
+`filter` ve `map` yerine reduce kullanmak isteseydik:
+
+```js
+const numbers = [-5, 6, 2, 0]
+
+console.log(
+	numbers.filter(number => number > 0).map(number => number * 2)
+)
+
+console.log(
+	numbers.reduce((acc, number) => {
+		if (number > 0) {
+			acc.push(number * 2)
+		}
+		return acc
+	}, [])
+)
+```
 
 #### `find()` metodu
 
-...
+Eşleşen ilk değeri döndürür.
+
+Örneğin 10'dan büyük ilk değeri bulalım.
+
+```js
+const numbers = [5, 12, 6, 120, 44]
+console.log(
+	numbers.find(number => number > 10)
+)
+```
+
+ya da id'si 2 olan üyeyi bulalım.
+
+```js
+const users = [
+  {id: 1, name: 'Tayfun'},
+  {id: 2, name: 'Mehmet'},
+  {id: 3, name: 'Gökhan'},
+]
+const user = users.find(user => user.id === 2)
+console.log(user)
+```
 
 #### `findIndex()` metodu
 
-...
-
-#### `includes()` metodu
-
-...
+`find` metodunun aynısı, sadece öğe yerine index değerini geriye döndürüyor.
 
 #### `every()` ve `some()` metodu
+
+Değerleri test etmek için kullanıyoruz.
+`every` ile her bir değerin koşulumuza uyup uymadığını kontrol ediyoruz, uyuyorsa `true` uymuyorsa `false` döndürüyor.
+
+```js
+const numbers = [2, 4, 6, 8, 10]
+console.log(
+	numbers.every(number => number % 2 === 0)
+)
+```
+
+`some` ise koşul en az 1'inde geçerliyse true değilse false döndürüyor.
