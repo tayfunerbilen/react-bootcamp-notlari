@@ -347,31 +347,7 @@ function App() {
 
 Tekrarlanan işlemlerde react bizden tekrarlanan elemanlara `key` propu geçmemizi bekler. Bu prop'un değeri tekrarlanan işlem içinde benzersiz olmalıdır.
 
-Bunu neden istiyor? Performans sebeplerinden dolayı. Şöyle düşünün. Aşağıdaki gibi bir markupımız olsun.
-
-```
-<li>Todo 1</li>
-<li>Todo 2</li>
-```
-
-Biz yukarıdaki todo örneğinde yeni bir todo eklediğimizde yukarıdaki markupumuz şöyle olacak:
-
-```
-<li>Todo 1</li>
-<li>Todo 2</li>
-<li>Todo 3</li>
-```
-
-React'in diffing algoritması ile bunu yönetmesi çokta zor değil. Ancak yeni bir todo değerini başa ekleseydim, yani şöyle olsaydı:
-
-```
-<li>Todo 4</li>
-<li>Todo 1</li>
-<li>Todo 2</li>
-<li>Todo 3</li>
-```
-
-Burada ilk elemanın `Todo 1` olması beklenirken `Todo 4` olmasıyla diğerleri de yeniden hesaplanmak zorunda kalırdı. İşte bu noktada react bize tekrarlanan elemanlar için benzersiz bir `key` değeri girmemizi istiyor. Böylece react hangisinin değiştiğini, güncellendiğini, silindiğini vs. çok daha efektik bir şekilde takip edecek ve perforamns kaybı yaşatmayacak.
+Genelde son çare olarak index değerini key olarak belirlemeniz beklenir. Dizi öğelerinizin değişme ihtimali varsa (örneğin dizinin sonuna başına ortasına yeni değerler geldi) bu gibi durumlarda index'i kullanmamamız tavsiye ediliyor. Şimdi nasıl kullanacağız bir bakalım.
 
 Todo örneğindeki şu kısmı:
 
@@ -392,8 +368,6 @@ Todo örneğindeki şu kısmı:
   ))}
 </ul>
 ```
-
-Genelde `map()` metodu 2. parametre olarak index değeri döndüğü için bu kullanılabilir. Ya da benzersiz olan herhangi bir şey tercih edilebilir.
 
 ### propTypes ile Tip Kontrolü
 
