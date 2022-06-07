@@ -417,6 +417,30 @@ Kısaca kullanabilecekleriniz:
 
 > **Not:** `isRequired` değerini yukarıdaki herhangi bir tanımın sonuna ekleyip zorunlu olduğunu belirtebilirsiniz.
 
+Ayrıca `defaultProps` ile component'e gönderilen prop'ların varsayılan değerlerini belirleyebiliyoruz.
+
+```jsx
+// ./components/Button.js
+import PropTypes from "prop-types"
+
+function Button({ variant, text, ...props }) {
+  return (
+    <button {...props} className={variant}>{text}</button>
+  )
+}
+
+Button.propTypes = {
+  variant: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired
+}
+
+Button.defaultProps = {
+  variant: 'default'
+}
+
+export defaul Button
+```
+
 ### Component Yaşam Döngüsü (Life Cycle)
 
 Bir component'in yaşam döngüsü vardır. Bu component ilk yüklendiğinde, component render edildiğinde, component yok edildiğinde çalışacak kodları belirlememizi sağlar.
