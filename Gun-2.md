@@ -624,3 +624,55 @@ function App() {
   )
 }
 ```
+
+### craeteElement() Kullanımı
+
+React'de JSX kullandığımızı söylemiştim. JSX ise kodları aslında birer javascript objesine çevriliyor. `createElement()` ile bir JSX objesi oluşturabiliriz. Yani örneğin şöyle bir JSX kodunu:
+
+```jsx
+<button className="btn" onClick={() => console.log('tıkladın!')}>
+  Button
+</button>
+```
+
+şöyle yazabilirdik:
+
+```jsx
+import { createElement } from "react"
+
+const button = createElement('button', {
+  className: 'btn',
+  onClick: () => console.log('tıkladın!')
+}, 'Button')
+```
+
+bir başka örnekte şöyle olabilir:
+
+```jsx
+function App() {
+  const todos = ['todo 1', 'todo 2', 'todo 3']
+  return (
+    <ul>
+      {todos.map((todo, index) => (
+        <li key={index}>{todo}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+bu da şu şekilde yazılabilirdi:
+
+```jsx
+import { createElement } from "react"
+
+function App() {
+  const todos = ['todo 1', 'todo 2', 'todo 3']
+  
+  const ul = createElement('ul', null, todos.map((todo, index) => createElement('li', {
+    key: index
+  }, todo)))
+  
+  return ul
+}
+```
