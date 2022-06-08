@@ -229,6 +229,56 @@ function Button({ children, ...props}) {
 }
 ```
 
+### Ortam Değişkenleri
+
+Bazı durumlarda bazı değerleri global olarak ortama göre tutmak isteyebilirsiniz. React ile proje geliştirirken temelde 2 ortamımız olacak. `development` ortamı yani geliştirme yaptığımız ortam ve `production` ortamı yani ürün seviyesinde ki ortamımız. 
+
+Örneğin bir API URL'imiz olduğunu düşünelim, bu değer development ya da production ortamlarında farklı olabilir. Bu gibi değerleri `.env` uzantılı dosyalarda tutacağız.
+
+Şu isimlerle .env dosyası oluşturabilirsiniz ve ana dizinde yer almalı:
+
+- `.env.development` - geliştirme ortamında geçerli ortam değişkenleri
+- `.env.production` - production ortamında geçerli ortam değişkenleri
+
+Sırasıyla bu dosyaları ana dizinimizde oluşturalım ve içine 1-2 ortam değişkeni tanımlayalım.
+
+> Ortam değişkenlerini tanımlarken ön ek olarak `REACT_APP_` gelmeli ve sonrasında değişken adınız yer almalı.
+
+```
+# .env.development
+REACT_APP_API_URL=http://localhost/api
+REACT_APP_TITLE=test title
+```
+
+```
+# .env.production
+REACT_APP_API_URL=http://test.com/api
+REACT_APP_TITLE=production title
+```
+
+Artık bunları component içinde kullanmak istediğimizde şöyle erişip kullanabiliriz.
+
+```jsx
+function App() {
+  return (
+    <div>
+      {process.env.REACT_APP_API_URL} <br />
+      {process.env.REACT_APP_TITLE}
+    </div>
+  )
+}
+```
+
+Ayrıca hangi ortamda olduğunuzu anlamak için `process.env.NODE_ENV` ile kontrol yapabilirsiniz. Sadece production ortamında bazı kodlarınızı çalıştırmak isteyebilirsiniz. Örn: analytics bilgileriniz gibi. 
+
+```jsx
+if (process.env.NODE_ENV === 'production') {
+  // analytics bilgileri
+}
+```
+
+Ayrıca ortam değişkenlerini HTML dosyasında da `%REACT_APP_TITLE%` şeklinde kullanabileceğinizi unutmayın.
+
 ### State Kavramı
 
 State kavramını sıkça duyacaksınız. Aslında bir değişken ve onun taşıdığı değer gibi düşünebilirsiniz. Farkı ise, bu değişkenler reaktiftir. Yani bir değişiklik olduğunda react bunu bilir ve kullanılan yerleri günceller, buna bağlı hesaplamalar varsa bunları yeniden hesaplar vs.
@@ -516,3 +566,61 @@ function Counter() {
 ```
 
 > birden fazla state'i tek bir `useEffect` de takip etmek istereseniz 2. parametreyi `[state1, state2]` şeklinde belirleyebilirsiniz.
+
+### Fragment Kullanımı
+
+React varsayılan olarak geriye bir JSX elemanı return etmenizi bekler. Yani birkaç tane JSX elemanını her zaman bir elemana sarmalayıp öyle döndürmenizi bekler. Ancak bazı durumlarda sarmalama işlemini bir etiketle yapmak yerine boş olarak ayarlamak isteyebilirsiniz. İşte bu gibi durumlarda `Fragment` kullanılır.
+
+```jsx
+function App() {
+  return (
+    <h3>Başlık</h3>
+    <p>Paragraf</p>
+    <button>buton örneği</button>
+  )
+}
+```
+
+Yukarıdaki hatalı bir kullanımdır, bu üç elemanı sarmalayıp tek bir eleman return etmeliyiz.
+
+```jsx
+function App() {
+  return (
+    <div>
+      <h3>Başlık</h3>
+      <p>Paragraf</p>
+      <button>buton örneği</button>
+    </div>
+  )
+}
+```
+
+Bu kullanım doğru olsada gereksiz yere `div` etiketi içinde yer alacaktır kodlarımız. Bunun yerine Fragment'i kullanalım birde.
+
+```jsx
+import { Fragment } from "react"
+
+function App() {
+  return (
+    <Fragment>
+      <h3>Başlık</h3>
+      <p>Paragraf</p>
+      <button>buton örneği</button>
+    </Fragment>
+  )
+}
+```
+
+Artık gereksiz bir etiketin içinde değiller ve yine başarıyla kodlarımız çalışıyor. Ayrıca `Fragment` import etmeden `<>` ile kısa kullanımınıda kullanabiliriz.
+
+```jsx
+function App() {
+  return (
+    <>
+      <h3>Başlık</h3>
+      <p>Paragraf</p>
+      <button>buton örneği</button>
+    </>
+  )
+}
+```
