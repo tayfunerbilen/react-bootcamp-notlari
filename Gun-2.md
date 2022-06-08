@@ -520,7 +520,7 @@ function App() {
 
   useEffect(() => {
     // component her render edildiğinde burası çalışır
-  }, [])
+  })
   
 }
 ```
