@@ -567,7 +567,7 @@ function Counter() {
 
 > birden fazla state'i tek bir `useEffect` de takip etmek istereseniz 2. parametreyi `[state1, state2]` şeklinde belirleyebilirsiniz.
 
-### Fragment Kullanımı
+## Fragment Kullanımı
 
 React varsayılan olarak geriye bir JSX elemanı return etmenizi bekler. Yani birkaç tane JSX elemanını her zaman bir elemana sarmalayıp öyle döndürmenizi bekler. Ancak bazı durumlarda sarmalama işlemini bir etiketle yapmak yerine boş olarak ayarlamak isteyebilirsiniz. İşte bu gibi durumlarda `Fragment` kullanılır.
 
@@ -625,7 +625,7 @@ function App() {
 }
 ```
 
-### craeteElement() Kullanımı
+## craeteElement() Kullanımı
 
 React'de JSX kullandığımızı söylemiştim. JSX ise kodları aslında birer javascript objesine çevriliyor. `createElement()` ile bir JSX objesi oluşturabiliriz. Yani örneğin şöyle bir JSX kodunu:
 
