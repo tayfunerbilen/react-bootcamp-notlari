@@ -1062,3 +1062,54 @@ export default function App() {
 ```
 
 `useMemo()` ilk parametresi callback fonksiyonu 2. parametresi ise bağımlılıkları yani hangi değerler değiştiğinde yeniden hesaplanması gerektiği 2. parametrede dizi olarak belirleniyor. Artık tekrar aynı işlemi denerseniz render olmadığını göreceksiniz.
+
+### useCallback() Kullanımı
+
+Yine component'e prop olarak geçilen metodların üst component render olduğunda yeniden hesaplanıp prop geçilen component'i de render etmemesi için metodlarda `useCallback()` kullanılır. Örneğin yukarıdaki örneğimizin devamı olarak aranan kelimeyi silen bir butonu component olarak hazırlayalım ve tıklanınca çalışacak metodu `App` component'inden prop olarak geçelim.
+
+```js
+// ./ClearButton.js
+import { memo } from "react"
+
+function ClearButton({ onClick }) {
+	console.log('clear button rendered')
+	return <button onClick={onClick}>Temizle</button>
+}
+
+export default memo(ClearButton)
+```
+
+```js
+import { useState, useMemo, useCallback } from 'react';
+
+import AddTodo from './AddTodo';
+import TodoList from './TodoList';
+import ClearButton from './ClearButton';
+
+export default function App() {
+ 	const [todos, setTodos] = useState([]);
+ 	const [count, setCount] = useState(0);
+	const [search, setSearch] = useState('')
+	
+	const filteredTodos = useMemo(() => {
+		return todos.filter(todo => todo.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
+	}, [todos, search])
+	
+	condt clearSearch = useCallback(() => {
+		setSearch('')
+	})
+	
+	return (
+		<>
+			<h3>{count}</h3>
+			<button onClick={() => setCount((c) => c + 1)}>Artır</button>
+			<hr />
+			<input type="text" placeholder="Todolarda ara" value={search} onChange={e => setSearch(e.target.value)} />
+			<ClearButton onClick={clearSearch} />
+			<hr />
+			<AddTodo setTodos={setTodos} />
+			<TodoList todos={filteredTodos} />
+		</>
+	);
+}
+```
