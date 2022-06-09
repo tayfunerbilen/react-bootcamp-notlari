@@ -728,3 +728,101 @@ export default function App() {
   );
 }
 ```
+
+## useReducer() Kullanımı
+
+useState() ile yönetmekte zorlandığınız daha karmaşık yapılarınızda `useReducer()` kullanabilirsiniz. Örnek bir counter uygulamasından durumu açıklayalım.
+
+```jsx
+import {useState} from "react";
+
+function Todos() {
+
+	const [todos, setTodos] = useState([])
+	const [todo, setTodo] = useState('')
+
+	const addTodo = () => {
+		setTodos([...todos, todo])
+		setTodo('')
+	}
+
+	const deleteTodo = index => {
+		setTodos([...todos.filter((t, i) => i !== index)])
+	}
+
+	return (
+		<>
+			<input type="text" value={todo} onChange={e => setTodo(e.target.value)}/>
+			<button disabled={!todo} onClick={addTodo}>Ekle</button>
+			<ul>
+				{todos.map((todo, index) => (
+					<li onClick={() => deleteTodo(index)} key={index}>{todo}</li>
+				))}
+			</ul>
+		</>
+	)
+}
+
+export default Todos
+```
+
+Yukarıdaki örnek basit bir todo örneği, şimdi bunu `useReducer()` ile yeniden düzenleyelim.
+
+```jsx
+import {useReducer} from "react";
+
+function reducer(state, action) {
+	switch (action.type) {
+		case 'UPDATE_TODO':
+			return {
+				...state,
+				todo: action.value
+			}
+
+		case 'ADD_TODO':
+			return {
+				...state,
+				todo: '',
+				todos: [...state.todos, action.todo]
+			}
+
+		case 'DELETE_TODO':
+			return {
+				...state,
+				todos: [...state.todos.filter((t, i) => i !== action.index)]
+			}
+	}
+}
+
+function Todos() {
+
+	const [state, dispatch] = useReducer(reducer, {
+		todos: [],
+		todo: ''
+	})
+
+	const addTodo = () => {
+		dispatch({ type: 'ADD_TODO', todo: state.todo })
+	}
+
+	const deleteTodo = index => {
+		dispatch({ type: 'DELETE_TODO', index })
+	}
+
+	return (
+		<>
+			<input type="text" value={state.todo} onChange={e => dispatch({ type: 'UPDATE_TODO', value: e.target.value })}/>
+			<button disabled={!state.todo} onClick={addTodo}>Ekle</button>
+			<ul>
+				{state.todos.map((todo, index) => (
+					<li onClick={() => deleteTodo(index)} key={index}>{todo}</li>
+				))}
+			</ul>
+		</>
+	)
+}
+
+export default Todos
+```
+
+Artık state'ler `useRecuder()` altında dönen değerlerden okunuyor. Bir işlem yaptırmak içinde `dispatch()` metoduna `type` ve gerekli değerleri geçerek tanımlıyoruz. Reducer fonksiyonunu da başka bir dosyada tutup daha düzenli bir kod yapısı oluşturabilirsiniz.
