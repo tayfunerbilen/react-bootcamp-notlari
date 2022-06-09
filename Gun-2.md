@@ -826,3 +826,230 @@ export default Todos
 ```
 
 Artık state'ler `useRecuder()` altında dönen değerlerden okunuyor. Bir işlem yaptırmak içinde `dispatch()` metoduna `type` ve gerekli değerleri geçerek tanımlıyoruz. Reducer fonksiyonunu da başka bir dosyada tutup daha düzenli bir kod yapısı oluşturabilirsiniz.
+
+## Memoization
+
+Memoization, bir optimizasyon tekniğidir. Primitive (ilkel) veri türlerinde 2 veriyi değerlerine göre karşılaştırmak kolaydır. Örneğin:
+
+```js
+"a" === "a" // true
+true === true // true
+34 === 34 // true
+```
+
+Ancak iş non-primitive (ilkel olmayan) veri türlerine geldiğinde bu sefer değerleri değil referansları karşılaştırılır. Yani şu örnekler birbirine eşit değildir:
+
+```js
+{} === {}
+[] === []
+```
+
+Görünürde bir farkları olmasada bellekte tutuldukları referansları farklı olduğu için hiçbir zaman aynı olmayacaklar. İşte react'de bazı metodlar yardımıyla bu non-primitive türleri saklayıp, değişmediği taktirde bunu saklandığı yerden döndürerek tekrar bir maliyet çıkarmadan işlemimizi daha performanslı sürdürebiliriz.
+
+### memo() Kullanımı
+
+Component'lerin gereksiz yere render edilmemesi için kullanılır. Örneğin bir component'in içinde başka bir component'i çağırdık. Eğer üst component'imiz render olursa, çağırdığımız çocuk component'de render olacaktır. En sık göreceğiniz örneği ise şöyledir:
+
+```js
+// ./components/Header.js
+function Header({ text }) {
+	console.log('header component render edildi')
+	return (
+		<header>{text}</header>
+	)
+}
+
+export default Header
+```
+
+```js
+import { useState } from "react"
+import Header from "./components/Header"
+
+function App() {
+	
+	console.log('App component render edildi')
+	const [count, setCount] = useState(0)
+	const [text, setText] = useState('header')
+	
+	return (
+		<>
+			<Header text={text} />
+			<h3>{count}</h3>
+			<button onClick={() => setCount(c => c + 1)}>Artır</button>
+			<button onClick={() => setText('yeni header yazısı')}>Header Yazısını Değiştir</button>
+		</>
+	)
+	
+}
+```
+
+Yukarıdaki örnekte Artır butonuna her bastığımızda konsol'da `header component render edildi'` mesajını göreceğiz. İşte bunu önlemek için `Header` component'ini export ederken `memo()` içinde export edebilirdik.
+
+Yani şunun yerine:
+
+```js
+export default Header
+```
+
+şu şekilde kullanmalıydık:
+
+```js
+import { memo } from "react"
+
+// ..
+
+export default memo(Header)
+```
+
+Arıtk `App` component'i render olsa bile `Header` component'i sadece ona geçilen prop'lar değişirse yeniden render olacaktır. Bunu anlamak için header yazını değiştirme butonuna basıp test edebilirsiniz. 2. kez basıldığında state öncekiyle aynı olduğu için component yine render edilmeyecektir.
+
+Ayrıca iç içe kullanımlarda da bu tekniği kullanmak faydalı olacaktır. Bir todo örneğinden yola çıkacak olursak:
+
+```js
+// ./AddTodo.js
+import { useState, memo } from 'react';
+
+function AddTodo({ setTodos }) {
+  console.log('add todo');
+  const [todo, setTodo] = useState('');
+  const submitHandle = (e) => {
+    e.preventDefault();
+    setTodos((todos) => [...todos, todo]);
+    setTodo('');
+  };
+  return (
+    <form onSubmit={submitHandle}>
+      <input
+        type="text"
+        value={todo}
+        onChange={(e) => setTodo(e.target.value)}
+      />
+      <button disabled={!todo} type="submit">
+        Ekle
+      </button>
+    </form>
+  );
+}
+
+export default memo(AddTodo);
+```
+
+```js
+// ./TodoList.js
+import { memo } from 'react';
+import TodoItem from './TodoItem';
+
+function TodoList({ todos }) {
+  console.log('todo list');
+  return (
+    <ul>
+      {todos.map((todo, index) => (
+        <TodoItem todo={todo} key={index} />
+      ))}
+    </ul>
+  );
+}
+
+export default memo(TodoList);
+```
+
+```js
+// ./TodoItem.js
+import { memo } from 'react';
+
+function TodoItem({ todo }) {
+  console.log('todo item', todo);
+  return <li>{todo}</li>;
+}
+
+export default memo(TodoItem);
+```
+
+```js
+import { useState } from 'react';
+
+import AddTodo from './AddTodo';
+import TodoList from './TodoList';
+
+export default function App() {
+  const [todos, setTodos] = useState([]);
+  const [count, setCount] = useState(0);
+  return (
+    <>
+      <h3>{count}</h3>
+      <button onClick={() => setCount((c) => c + 1)}>Artır</button>
+      <AddTodo setTodos={setTodos} />
+      <TodoList todos={todos} />
+    </>
+  );
+}
+```
+
+Bu örnekte `memo()` metodunu kaldırarak konsol'dan neler olduğunu inceleyip durumu daha iyi anlayabilirsiniz :)
+
+### useMemo() Kullanımı
+
+Component render olduğunda çocuk component'e prop olarak geçilen değerler non-primite (ilkel olmayan) değerler ise çocuk component'de yeniden render olacak. Yukarıdaki örneğimizde `todos` değeri yerine `filteredTodos` gibi bir değeri prop olarak geçiyor olsaydık, yine `count` artırınca `App` render olacağı için ve `filteredTodos` artık eski referansına sahip olmayacağı için prop değişmiş gibi görünecek ve çocuk component'de render olacaktır. İşte bu gibi durumlarda bunu `useMemo()` ile optimize edebiliriz. Böylece component render olsa bile refransı değişmez, sadece gerçekten bir değişiklik olduğunda çocuk component'i render eder.
+
+Örnek olarak yukarıdaki `App` component'ine bir search input'u ekleyip todo'ları filtreleme işlemi yapalım. Ve `TodoList` e prop olarak `todos` değilde `filteredTodos` propunu geçelim.
+
+```js
+import { useState } from 'react';
+
+import AddTodo from './AddTodo';
+import TodoList from './TodoList';
+
+export default function App() {
+  const [todos, setTodos] = useState([]);
+  const [count, setCount] = useState(0);
+	const [search, setSearch] = useState('')
+	
+	const filteredTodos = todos.filter(todo => todo.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
+	
+  return (
+    <>
+      <h3>{count}</h3>
+      <button onClick={() => setCount((c) => c + 1)}>Artır</button>
+			<hr />
+			<input type="text" placeholder="Todolarda ara" value={search} onChange={e => setSearch(e.target.value)} />
+			<hr />
+      <AddTodo setTodos={setTodos} />
+      <TodoList todos={filteredTodos} />
+    </>
+  );
+}
+```
+
+Şimdi burada eğer `Artır` butonuna basarsak `TodoList` in `memo()` kullanmamıza rağmen render olduğunu görüyoruz. Yukarıda açıkladığım sebeplerden dolayı, bu yüzden `filteredTodos` değerini `useMemo()` ile kullanmamız lazım. Yani:
+
+```js
+import { useState, useMemo } from 'react';
+
+import AddTodo from './AddTodo';
+import TodoList from './TodoList';
+
+export default function App() {
+  const [todos, setTodos] = useState([]);
+  const [count, setCount] = useState(0);
+	const [search, setSearch] = useState('')
+	
+	const filteredTodos = useMemo(() => {
+		return todos.filter(todo => todo.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
+	}, [todos, search])
+	
+  return (
+    <>
+      <h3>{count}</h3>
+      <button onClick={() => setCount((c) => c + 1)}>Artır</button>
+			<hr />
+			<input type="text" placeholder="Todolarda ara" value={search} onChange={e => setSearch(e.target.value)} />
+			<hr />
+      <AddTodo setTodos={setTodos} />
+      <TodoList todos={filteredTodos} />
+    </>
+  );
+}
+```
+
+`useMemo()` ilk parametresi callback fonksiyonu 2. parametresi ise bağımlılıkları yani hangi değerler değiştiğinde yeniden hesaplanması gerektiği 2. parametrede dizi olarak belirleniyor. Artık tekrar aynı işlemi denerseniz render olmadığını göreceksiniz.
