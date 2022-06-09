@@ -677,7 +677,7 @@ function App() {
 }
 ```
 
-## useRef() Kullanımı
+## useRef() Kullanımı
 
 Bazı durumlarda react elemanlarına javascript tarafında erişip işlem yaptırmak isteyebilirsiniz. Bu gibi durumlarda o elemanı ref'lemek gerekiyor ve bunun içinde `useRef()` hook'u kullanılıyor.
 
