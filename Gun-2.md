@@ -229,7 +229,7 @@ function Button({ children, ...props}) {
 }
 ```
 
-### Ortam Değişkenleri
+### Ortam Değişkenleri
 
 Bazı durumlarda bazı değerleri global olarak ortama göre tutmak isteyebilirsiniz. React ile proje geliştirirken temelde 2 ortamımız olacak. `development` ortamı yani geliştirme yaptığımız ortam ve `production` ortamı yani ürün seviyesinde ki ortamımız. 
 
