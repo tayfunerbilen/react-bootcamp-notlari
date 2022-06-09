@@ -676,3 +676,55 @@ function App() {
   return ul
 }
 ```
+
+## useRef() Kullanımı
+
+Bazı durumlarda react elemanlarına javascript tarafında erişip işlem yaptırmak isteyebilirsiniz. Bu gibi durumlarda o elemanı ref'lemek gerekiyor ve bunun içinde `useRef()` hook'u kullanılıyor.
+
+Örneğin bir input'umuz olsun ve bir button'a basınca bu input'a focuslamak istediğimizi varsayalım. Input'a focuslamak için evvela input'a erişebilmemiz lazım bunun içinde `useRef()` ile refleme işlemi yapabiliriz.
+
+```jsx
+import { useRef } from "react"
+
+function App() {
+  const inputRef = useRef()
+  return (
+    <>
+      <input type="text" ref={inputRef} />
+      <button onClick={() => {
+        inputRef.current.focus()
+      }}>Focusla</button>
+    </>
+  )
+}
+```
+
+Gördüğünüz gibi dom elemanına ulaşmak için `inputRef.current` şeklinde bir kullanım gerçekleştirdik.
+
+## forwardRef() Kullanımı
+
+Yukarıdaki senaryomuz aynı kalsaydı ve input etiketi yerine bu bir component olsaydı, bu işlemi `forwardRef()` ile ref'i ileterek yapmak zorundaydık. Yani:
+
+```jsx
+import { useRef } from "react"
+
+const Input = forwardRef((props, ref) => {
+  return <input type="text" {...props} ref={ref} />;
+});
+
+export default function App() {
+  const inputRef = useRef();
+  return (
+    <>
+      <Input ref={inputRef} />
+      <button
+        onClick={() => {
+          inputRef.current.focus();
+        }}
+      >
+        Focusla
+      </button>
+    </>
+  );
+}
+```
