@@ -814,9 +814,9 @@ function Todos() {
 			<input type="text" value={state.todo} onChange={e => dispatch({ type: 'UPDATE_TODO', value: e.target.value })}/>
 			<button disabled={!state.todo} onClick={addTodo}>Ekle</button>
 			<ul>
-			{state.todos.map((todo, index) => (
-				<li onClick={() => deleteTodo(index)} key={index}>{todo}</li>
-			))}
+				{state.todos.map((todo, index) => (
+					<li onClick={() => deleteTodo(index)} key={index}>{todo}</li>
+				))}
 			</ul>
 		</>
 	)
