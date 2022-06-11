@@ -847,7 +847,7 @@ export default function App() {
 }
 ```
 
-#### File Input
+#### File Input
 
 Dosyalarla çalışırken biraz daha farklı yaklaşıyoruz:
 
