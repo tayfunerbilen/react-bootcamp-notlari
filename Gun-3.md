@@ -119,3 +119,31 @@ export default function PostDetail() {
 ```
 
 > Fark edeceğiniz üzere iki noktadan sonra ne yazarsanız onu `useParams()` içinden alıp kullanabilirsiniz.
+
+### "404 - Sayfa Bulunamadı"
+
+Oluşturduğunuz router'larla eşleşmeyen bir sayfaya girildiğinde 404 sayfası göstermek için `path` değerine `*` yazmanız yeterli. Nested route'larda da kullanılabilir.
+
+
+```js
+<Routes>
+	<Route path="/" element={<Home />} />
+	<Route path="contact" element={<Contact />} />
+	<Route path="blog" element={<Blog />}>
+		<Route index element={<BlogPage />} />
+		<Route path="konu/:url" element={<BlogPost />} />
+		<Route path="*" element={<BlogPageNotFound />} />
+	</Route>
+	<Route path="*" element={<PageNotFound />} />
+</Routes>
+```
+
+Artık şu adresler dışında nereye girilirse girilsin 404 sayfası gözükecektir.
+
+```
+/
+/contact
+/blog
+/blog/konu/test-konu
+```
+
