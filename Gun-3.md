@@ -232,7 +232,7 @@ function App() {
 
 > Ayrıca `Navigate` component'i ya da `useNavigate` hook'u ile gönderilen state'lere de erişip kullanabilirsiniz. Örneğin login'e yönlendirme yaparken yönlendirilen sayfayı state'de tutup giriş yaptıktan sonra ilgili sayfaya yönlendirebilirsiniz.
 
-#### `useNaviate()` Hooku
+### `useNaviate()` Hooku
 
 Yönlendirme işlemini hook seviyesinde yapmak için kullanılır. Örneğin:
 
