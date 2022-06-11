@@ -349,7 +349,36 @@ function App() {
 
 ### Koşullu Render
 
-Bir koşula bağlı olarak bazı alanları yüklemek istediğinizde `&&` operatörünü kullanabilirsiniz. Örneğin bir buton'a bastığımızda state'in değerini `true` yapalım ve eğer bu değer `true` ise bir başka JSX elemanı render edelim.
+Component'lerde return işleminden sonra bir kod varsa bunlar çalışmayacaktır. Bu yüzdenk koşullu olarakta render yapabilirsiniz. Örneğin kullanıcı giriş yapmışsa başka bir değer, yapmamışsa başka bir değer return edebilirdik.
+
+```jsx
+function App() {
+
+	const isLoggedIn = true;
+	
+	if (isLoggedIn) {
+		return (
+			<div>
+				<h3>Hoşgeldiniz</h3>
+			</div>
+		)
+	}
+  
+  return (
+    <div>
+      <button onClick={() => setShow(show => !show)}>
+        {show ? 'Gizle' : 'Göster'}
+      </button>
+      {show && (
+        <div>bu alan show state değeri true olduğunda görünür!</div>
+      )}
+    </div>
+  )
+
+}
+```
+
+Ayrıca return içinde de duruma göre göstermek istediğimiz alanları `&&` ile belirleyip kullanabilirdik.
 
 ```jsx
 function App() {
@@ -498,6 +527,397 @@ Button.defaultProps = {
 }
 
 export defaul Button
+```
+
+### Form Elemanlarıyla Çalışmak
+
+React'de en çok kullanacağımız şeylerden biride form elemanları, ve bunları nasıl yöneteceğimiz konusu. Gelin tek tek form elemanlarını nasıl yönetebiliriz inceleyelim.
+
+#### Input
+
+Tipi checkbox ya da radio olmadığı sürece herhangi bir input türü şöyle kullanılabilir:
+
+```js
+import React, { useState } from 'react';
+
+export default function App() {
+  const [name, setName] = useState('tayfun');
+  const [surname, setSurname] = useState('erbilen');
+  return (
+    <div>
+      <button onClick={() => setName('Recep')}>Adı Değiştir</button>
+      <button onClick={() => setSurname('Durmuş')}>Soyadı Değiştir</button>
+      <hr />
+      <input
+        type="text"
+        defaultValue={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        type="text"
+        value={surname}
+        onChange={(e) => setSurname(e.target.value)}
+      />
+      <hr />
+      Ad = {name} <br />
+      Soyad = {surname}
+    </div>
+  );
+}
+```
+
+#### Textarea
+
+HTML'de `<textarea>açıklama</textarea>` şeklinde tanımlansada react'de `value` prop'u ile değeri belirtilerek kullanılabilir.
+
+```js
+import React, { useState } from 'react';
+
+export default function App() {
+  const [description, setDescription] = useState('örnek description');
+  return (
+    <div>
+      <button onClick={() => setDescription('bu bir test açıkalamadır')}>
+        Açıklamayı Değiştir
+      </button>
+      <hr />
+      <textarea
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <hr />
+      Açıklama = {description}
+    </div>
+  );
+}
+```
+
+#### Select
+
+Select'de de yine `value` ile değer belirlenir.
+
+```js
+import React, { useState } from 'react';
+
+export default function App() {
+  const [category, setCategory] = useState();
+  return (
+    <div>
+      <button onClick={() => setCategory(3)}>Kategoriyi Değiştir</button>
+      <hr />
+      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <option>- Seçin -</option>
+        <option value="1">PHP</option>
+        <option value="2">CSS</option>
+        <option value="3">HTML</option>
+        <option value="4">JavaScript</option>
+      </select>
+      <hr />
+      Seçilen Kategori = {category}
+    </div>
+  );
+}
+```
+
+Ayrıca seçilen kategori'nin adını getirmek isteseydik şöyle de kullanabilirdik:
+
+```js
+import React, { useState } from 'react';
+
+const categories = ['PHP', 'CSS', 'HTML', 'JavaScript'];
+
+export default function App() {
+  const [category, setCategory] = useState();
+  return (
+    <div>
+      <button onClick={() => setCategory(3)}>Kategoriyi Değiştir</button>
+      <hr />
+      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <option>- Seçin -</option>
+        {categories.map((category, index) => (
+          <option value={index} key={index}>{category}</option>
+        ))}
+      </select>
+      <hr />
+      Seçilen Kategori = {categories[category] || 'Seçilmedi'}
+    </div>
+  );
+}
+```
+
+Ya da obje olarak şöyle kullanabilirdik:
+
+```js
+import React, { useState } from 'react';
+
+const categories = [
+  { id: 1, name: 'PHP' },
+  { id: 2, name: 'CSS' },
+  { id: 3, name: 'HTML' },
+  { id: 4, name: 'JavaScript' },
+];
+
+export default function App() {
+  const [category, setCategory] = useState();
+  return (
+    <div>
+      <button onClick={() => setCategory(3)}>Kategoriyi Değiştir</button>
+      <hr />
+      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <option>- Seçin -</option>
+        {categories.map((category) => (
+          <option value={category.id} key={category.id}>
+            {category.name}
+          </option>
+        ))}
+      </select>
+      <hr />
+      Seçilen Kategori ={' '}
+      {categories[category]
+        ? JSON.stringify(categories[category])
+        : 'Seçilmedi'}
+    </div>
+  );
+}
+```
+
+Multiple selectbox örneğimiz ise şöyle olurdu:
+
+```js
+import React, { useState } from 'react';
+
+const categoryList = [
+  { id: 1, name: 'PHP' },
+  { id: 2, name: 'CSS' },
+  { id: 3, name: 'HTML' },
+  { id: 4, name: 'JavaScript' },
+];
+
+export default function App() {
+  const [categories, setCategories] = useState();
+  const getCategories =
+    categories && categoryList.filter((c) => categories.includes(c.id));
+  return (
+    <div>
+      <button onClick={() => setCategories([2, 3])}>
+        Kategorileri Değiştir
+      </button>
+      <hr />
+      <select
+        multiple={true}
+        value={categories}
+        onChange={(e) =>
+          setCategories(
+            [...e.target.selectedOptions].map((option) => Number(option.value))
+          )
+        }
+      >
+        <option>- Seçin -</option>
+        {categoryList.map((category) => (
+          <option value={category.id} key={category.id}>
+            {category.name}
+          </option>
+        ))}
+      </select>
+      <hr />
+      Seçilen Kategori = {categories ? JSON.stringify(categories) : 'Seçilmedi'}
+      <hr />
+      <pre>{JSON.stringify(getCategories, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+#### Checkbox
+
+```js
+import React, { useState } from 'react';
+
+export default function App() {
+  const [checked, setChecked] = useState(false);
+  return (
+    <div>
+      <button onClick={() => setChecked((checked) => !checked)}>
+        Checkboxı Değiştir
+      </button>
+      <hr />
+      <label>
+        <input
+          type="checkbox"
+          value={checked}
+          checked={checked}
+          onChange={(e) => setChecked(e.target.checked)}
+        />
+        Kuralları kabul ediyorum
+      </label>
+      <hr />
+      Kurallar kabul edildi = {checked.toString()}
+    </div>
+  );
+}
+```
+
+Birden fazla checkbox'ı yönetmek isteseydik:
+
+```js
+import React, { useState } from 'react';
+
+export default function App() {
+  const [rules, setRules] = useState([
+    { id: 1, label: 'Kuralları kabul ediyorum', checked: false },
+    { id: 2, label: 'Sözleşmeyi kabul ediyorum', checked: false },
+    { id: 3, label: 'Kullanım koşullarını kabul ediyorum', checked: false },
+  ]);
+  const changeHandle = (e) => {
+    setRules((rules) =>
+      rules.map((r) => {
+        if (r.id == e.target.value) {
+          r.checked = e.target.checked;
+        }
+        return r;
+      })
+    );
+  };
+	const acceptTogggle = () => {
+    setRules((rules) =>
+      rules.map((rule) => ({
+        ...rule,
+        checked: !rule.checked,
+      }))
+    );
+  };
+	const disabled = rules.every((rule) => rule.checked);
+  return (
+    <div>
+      <button onClick={acceptTogggle}>Tümünü Kabul Et</button>
+      <hr />
+      {rules.map((rule) => (
+        <label style={{ display: 'block' }} key={rule.id}>
+          <input
+            type="checkbox"
+            value={rule.id}
+            checked={rule.checked}
+            onChange={(e) => changeHandle(e)}
+          />
+          {rule.label}
+        </label>
+      ))}
+			<hr />
+			<button disabled={!disabled}>Devam et</button>
+      <hr />
+      <pre>{JSON.stringify(rules, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+#### Radio
+
+```js
+import React, { useState } from 'react';
+
+const options = [
+  { option: 'Option 1', id: 1 },
+  { option: 'Option 2', id: 2 },
+  { option: 'Option 3', id: 3 },
+];
+
+export default function App() {
+  const [selected, setSelected] = useState(false);
+  const option = options.find((o) => o.id === selected);
+  return (
+    <div>
+      <button onClick={() => setSelected(2)}>Option'ı Değiştir</button>
+      <hr />
+      {options.map((option) => (
+        <label style={{ display: 'block' }} key={option.id}>
+          <input
+            type="radio"
+            value={option.id}
+            checked={selected === option.id}
+            onChange={(e) => setSelected(option.id)}
+          />
+          {option.option}
+        </label>
+      ))}
+      <hr />
+      <pre>{option ? JSON.stringify(option) : 'Seçilmedi'}</pre>
+    </div>
+  );
+}
+```
+
+#### File Input
+
+Dosyalarla çalışırken biraz daha farklı yaklaşıyoruz:
+
+```js
+import React, { useState } from 'react';
+
+export default function App() {
+  const [file, setFile] = useState(false);
+  const changeHandle = (e) => {
+    setFile(e.target.files[0]);
+  };
+  return (
+    <div>
+      <label>
+        <input type="file" onChange={changeHandle} />
+      </label>
+      {file && <div>Seçilen dosya = {file.name}</div>}
+    </div>
+  );
+}
+```
+
+Seçilen bir görseli önizlemek için:
+
+```js
+import React, { useState } from 'react';
+
+export default function App() {
+  const [file, setFile] = useState(false);
+  const changeHandle = (e) => {
+    if (e.target.files[0]) {
+      const fileReader = new FileReader();
+      fileReader.addEventListener('load', function () {
+        setFile(this.result);
+      });
+      fileReader.readAsDataURL(e.target.files[0]);
+    } else {
+      setFile(false);
+    }
+  };
+  return (
+    <div>
+      <label>
+        <input type="file" accept="image/*" onChange={changeHandle} />
+      </label>
+      {file && <img src={file} />}
+    </div>
+  );
+}
+```
+
+Birden fazla dosya seçimi için:
+
+```js
+import React, { useState } from 'react';
+
+export default function App() {
+  const [files, setFiles] = useState(false);
+  const changeHandle = (e) => {
+    setFiles([...e.target.files]);
+  };
+  return (
+    <div>
+      <label>
+        <input type="file" multiple={true} onChange={changeHandle} />
+      </label>
+      {files && files.map((file) => <div>{file.name}</div>)}
+    </div>
+  );
+}
 ```
 
 ### Component Yaşam Döngüsü (Life Cycle)
