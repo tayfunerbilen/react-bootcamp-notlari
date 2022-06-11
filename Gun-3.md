@@ -1,269 +1,59 @@
 # 3. Gün
 
-## Context Yapısı
+## React Router
 
-Tipik bir react uygulamasında state'ler üst component'den alt component'lere iletilerek kullanılır. Fakat bu tarz bir kullanım, bire süre sonra component ve state'lerin artmasıyla büyük bir sorun haline gelir.
+Routing yapısı için `react-router` paketini kullanacağız. Böylece sayfalarımızı kolayca yöneteceğiz ve paketin verdiği avantajları kullanarak gücümüze güç katacağız :)
 
-İşte bu gibi durumlar için state'leri global yönetmek adına react'in bize sağladığı `context` yapısını kullanabiliriz.
+### Kurulum
 
-> Global state yönetim araçları elbette var, ancak bu react'in kendisinde bulunan bir yapı olduğu için bilmekte fayda var.
+Kurmak için:
 
-Context yapısını genelde kullanıcı işlemlerinde, tema ve dil gibi global işlemler için kullanabiliriz.
-
-### Kullanımı
-
-`createContext()` ile kullanmak üzere bir context yapısı oluşturulur. Örneğin sitenin dilini ve temasını tutan bir context yapısı oluşturalım ve bunu `context/` klasörü içinde `SiteContext.js` adıyla oluşturalım.
-
-
-```js
-// ./context/SiteContext.js
-import { createContext } from "react"
-
-const SiteContext = createContext()
-
-export default SiteContext
+```shell
+npm install react-router-dom@6
 ```
 
-Context yapısını kullanırken diğer tüm kodlarımızı kapsayacak şekilde sarmalamak gerekir.
+İlk olarak `index.js` de `BrowserRouter` component'ini çağırıyoruz.
 
 ```js
-import Header from "./components/Header"
-import SiteContext from "./context/SiteContext"
-
-function App() {
-
-  const data = {
-    theme: 'light',
-    language: 'tr'
-  }
-
-  return (
-    <SiteContext.Provider value={data}>
-      <Header />
-    </SiteContext.Provider>
-  )
-}
+import { BrowserRouter } from "react-router-dom";
 ```
 
-`SiteContext.Provider` dedikten sonra `value` prop'una paylaşılacak değerler geçilir. Ve örneğin `Header` component'inde buna erişmek istediğimizde:
+Ve `App` component'ini bunun içinde render ediyoruz.
 
 ```js
-// ./components/Header.js
-import { useContext } from "react"
-import SiteContext from "../context/SiteContext"
-
-export default function Header() {
-
-  const { theme, language } = useContext(SiteContext)
-
-  return (
-    <header>
-      Site dili: {language} <br />
-      Site teması: {theme}
-    </header>
-  )
-}
+<BrowserRouter>
+  <App />
+</BrowserRouter>
 ```
 
-`useContext()` içine `SiteContext` belirlenir ve objeden destructuring yardımı ile değerler çıkartılıp kullanılır. Artık component'e prop geçmeden de global olarak değerlerimizi çekmeyi başardık. Ancak hala bir eksik var, Header component'inden bu değerleri değiştiremiyoruz. O zaman `App` componentimizde değerleri `useState()` ile oluşturup bir de öyle deneyelim.
+Ve `App` component'i içinde `Routes`, `Route` ve `Link` component'lerini çağırıyoruz. Ve routing işlemlerini belirliyoruz.
 
 ```js
-import { useState } from "react"
-import Header from "./components/Header"
-import SiteContext from "./context/SiteContext"
-
-function App() {
-
-  const [theme, setTheme] = useState('light')
-  const [language, setLanguage] = useState('tr')
-
-  const data = {
-    theme,
-    setTheme,
-    language,
-    setLanguage
-  }
-
-  return (
-    <SiteContext.Provider value={data}>
-      <Header />
-    </SiteContext.Provider>
-  )
-}
-```
-
-Artık state'i ve onu güncellemek için gerekli fonksiyonlarda global olarak paylaştığım datanın içerisinde. Şimdi `Header` component'ini şöyle güncelleyebiliriz.
-
-```js
-// ./components/Header.js
-import { useContext } from "react"
-import SiteContext from "../context/SiteContext"
-
-export default function Header() {
-
-  const { theme, setTheme, language, setLanguage } = useContext(SiteContext)
-
-  return (
-    <header>
-      Site dili: {language} <br />
-      <button onClick={() => setLanguage('en')}>Dili Değiştir</button>
-      
-      <hr />
-      Site teması: {theme} <br />
-      <button onClick={() => setTheme(theme => theme === 'light' ? 'dark' : 'light')}>Dili Değiştir</button>
-    </header>
-  )
-}
-```
-
-Artık header component'inden değişikliği yaptık, aynı yapıyı kullanarak diğer bütün component'lerde bu değere erişip kullanabiliriz ve bir değişiklikte bunlar otomatik olarak güncellenir.
-
-### Daha İyi Kullanımı
-
-Böyle çok karmaşık gibi gelmedi mi? Context'i biraz daha tek dosyada tutup mümkün olduğunca basitleştirmeye çalışalım. İlk olarak context yapımızı şöyle değiştireceğiz:
-
-```js
-// ./context/SiteContext.js
-import { createContext, useState } from "react"
-
-const SiteContext = createContext()
-const SiteProvider = ({ children }) => {
-  
-  const [theme, setTheme] = useState('light')
-  const [language, setLanguage] = useState('en')
-  
-  const data = {
-    theme,
-    setTheme,
-    language,
-    setLanguage
-  }
-  
-  return (
-    <SiteContext.Provider value={data}>
-      {children}
-    </SiteContext.Provider>
-  )
-}
-
-export const useSite = () => useContext(SiteContext)
-export default SiteProvider
-```
-
-Artık `App` componentimiz şöyle olacak:
-
-```js
-import { useState } from "react"
-import Header from "./components/Header"
-import SiteProvider from "./context/SiteContext"
+import { Routes, Route, Link } from "react-router-dom"
+import Home from "./pages/Home";
+import Contact from "./pages/Contact";
 
 function App() {
   return (
-    <SiteProvider>
-      <Header />
-    </SiteProvider>
-  )
-}
-```
-
-Ve `Header` componentimizde şöyle kullanabileceğiz:
-
-```js
-// ./components/Header.js
-import { useSite } from "../context/SiteContext"
-
-export default function Header() {
-
-  const { theme, setTheme, language, setLanguage } = useSite()
-
-  return (
-    <header>
-      Site dili: {language} <br />
-      <button onClick={() => setLanguage('en')}>Dili Değiştir</button>
-      
-      <hr />
-      Site teması: {theme} <br />
-      <button onClick={() => setTheme(theme => theme === 'light' ? 'dark' : 'light')}>Dili Değiştir</button>
-    </header>
-  )
-}
-```
-
-Yan etkileri de context dosyamız içinde kolayca yönetebiliriz. Örneğin temayı ve dili değiştirdiğimizde bunları localStorage'da tutalım, sayfayı yenilediğimizde en son belirlediğimiz tema ve dil hangisi ise onlar kalmaya devam etsin.
-
-
-```js
-// ./context/SiteContext.js
-import { createContext, useState, useEffect } from "react"
-
-const SiteContext = createContext()
-const SiteProvider = ({ children }) => {
-  
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
-  const [language, setLanguage] = useState(localStorage.getItem('language') || 'en')
-  
-  const data = {
-    theme,
-    setTheme,
-    language,
-    setLanguage
-  }
-  
-  useEffect(() => {
-    localStorage.setItem('theme', theme)
-    localStorage.setItem('language', language)
-  }, [theme, language])
-  
-  return (
-    <SiteContext.Provider value={data}>
-      {children}
-    </SiteContext.Provider>
-  )
+    <>
+      <nav>
+        <Link to="/">Anasayfa</Link>
+        <Link to="/contact">İletişim</Link>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="contact" element={<Contact />} />
+      </Routes>
+    </>
+  );
 }
 
-export const useSite = () => useContext(SiteContext)
-export default SiteProvider
+export default App;
 ```
 
-state'lerin başlangıç değerlerini eğer varsa `localStorage` nesnesinden okuduk. Ve `useEffect` ile `theme` ya da `language` değiştiğinde bunu localStorage'a kaydettik. Böylece bir sonraki yenileyişte değişiklikleri hatırlayacaktır.
+`pages` klasörüne `Home` ve `Contact` adında 2 component oluşturup içlerini basitçe doldurabiliriz.
 
-Ayrıca birden fazla context yapımız olduğunda bunları her seferinde `App` de çağırmayalım ya da state'leri kullanmak istediğimizde farklı dosyalardan çekmeyeli onun yerine `context` klasörüne bir `index.js` dosyası oluşturup tümünü burada yapalım.
+Burada `a` etiketi ile de linklendirme yapabiliriz ancak `Link` componenti ile sayfa yenilenmeden bu işlemleri daha kolayca yönetebiliriz.
 
-```js
-import SiteProvider, { useSite } from "./SiteContext"
 
-export default function Provider({ children }) {
-  return <SiteProvider>{children}</SiteProvider>
-}
-
-export {
-  useSite
-}
-```
-
-Artık App'de kullanırken:
-
-```js
-import { useState } from "react"
-import Header from "./components/Header"
-import Provider from "./context"
-
-function App() {
-  return (
-    <Provider>
-      <Header />
-    </Provider>
-  )
-}
-```
-
-Ve `Header` componentinde erişirken:
-
-```js
-// ./components/Header.js
-import { useSite } from "../context"
-
-// diğer kodlar...
-```
-
-Böylece bir başka context yapımız olduğunda bunu `context/index.js` de çağırıp kullanıcaz ve istediğimiz her yerde onun custom hook'u ile datalarına erişip müdehale edebileceğiz.
+DEVAM EDECEK....
