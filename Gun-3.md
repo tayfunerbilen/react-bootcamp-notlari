@@ -300,6 +300,34 @@ function App() {
 }
 ```
 
+Ayrıca `lazy()` ve `import()` kullanılarak lazy load'da yapılabilirdi.
+
+```js
+impory { lazy, Suspense } from "react"
+const Home =  lazy(() => import("./pages/Home"))
+const Blog = lazy(() => import("./pages/Blog"))
+const BlogPostDetail = lazy(() => import("./pages/Blog/BlogPostDetail"));
+
+const routes = [
+	{
+		path: '/',
+		element: <Suspense><Home /></Suspense>
+	},
+	{
+		path: 'blog',
+		element: <Suspense><Blog /></Suspense>,
+		children: [
+			{
+				path: 'konu/:url',
+				element: <Suspense><BlogPostDetail /></Suspense>
+			}
+		]
+	}
+]
+
+export default routes
+```
+
 ### `useSearchParams()` Hooku
 
 Query String'leri yönetmek için kullanılır. Örneğin şöyle bir link yapınız var:
