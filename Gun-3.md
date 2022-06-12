@@ -462,6 +462,33 @@ export const getPath = (path, data = {}) => {
 }
 ```
 
+## React Helmet ile SEO
+
+React projelerinde en temel problem seo gibi görünsede, google ve benzer büyük arama motorları bu konuyu çoktan aştılar. Elbette biz de onlara yardımcı olabiliriz, her sayfaya özel meta dataları bu paket sayesinde kolayca tanımlayıp onların işini kolaylaştırabiliriz.
+
+Kurmak için:
+
+```shell
+npm i react-helmet
+```
+
+Kullanmak için:
+
+```js
+impory { Helmet } from "react-helmet"
+
+function App() {
+	return (
+		<>
+			<Helmet>
+				<title>Başlık</title>
+				<meta name="description" content="örnek site açıklaması" />
+			</Helmet>
+		</>
+	)
+}
+```
+
 ## Formik ile Form İşlemleri
 
 Form'ları daha kontrollü bir şekilde yönetmek için `formik` gibi form paketlerini kullanabiliriz. Bir çok farklı form paketi mevcut, biz formik'i inceleyeceğiz.
