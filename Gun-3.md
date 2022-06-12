@@ -1,5 +1,68 @@
 # 3. Gün
 
+## Fetch API
+
+Ek bir paket kullanmadan HTTP istekleri yönetmek için bize modern bir arayüz sunar.
+
+En basit olarak bir HTTP isteği şöyle yapılır:
+
+```js
+fetch('/api')
+```
+
+Bu bize bir promise döndürüyor, 1. günde promise'leri öğrenmiştik. Yönetmek için `then()` ve `catch()` bloklarını kullanabiliriz. Eğer istek attığımız yer bize json formatında veri gönderiyorsa bunu json olarak iletmemiz gerekiyor. Yani:
+
+```js
+fetch('/api')
+	.then(res => res.json())
+	.then(res => console.log(res))
+	.catch(err => console.log(err))
+```
+
+`async/awiat` ile isteklerimizi yönetmek isteseydik:
+
+```js
+async function getTodo() {
+	const response = await fetch('https://jsonplaceholder.typicode.com/todos/1')
+	if (response.status === 200) {
+		const data = await response.json()
+		console.log(data)
+	} else if (response.status === 400) {
+		console.log('Hata', response.statusText)
+	}
+}
+```
+
+Ayrıca istek yaparken bazı ayarlarıda belirtebilirsiniz. Örneğin:
+
+```js
+const formData = new FormData()
+formData.append('name', 'Tayfun')
+formData.append('surname', 'Erbilen')
+
+fetch('/api', {
+	method: 'POST',
+	body: formData
+})
+```
+
+Ayrıca isteği json olarak göndermekte isteyebilirsiniz:
+
+```js
+let data = {
+	name: 'Tayfun',
+	surname: 'Erbilen'
+}
+
+fetch('/api', {
+	method: 'POST',
+	body: JSON.stringify(data),
+	headers: {
+    'Content-Type': 'application/json',
+  },
+})
+```
+
 ## React Router
 
 Routing yapısı için `react-router` paketini kullanacağız. Böylece sayfalarımızı kolayca yöneteceğiz ve paketin verdiği avantajları kullanarak gücümüze güç katacağız :)
