@@ -564,3 +564,207 @@ export default function Home() {
 	)
 }
 ```
+
+### `useField()` ile Custom Componentler
+
+Formik'in componentleri ya da varsayılan form elemanları yerine daha da özelleştirdiğimiz kendi component'lerimizi de şöyle kullanabiliriz.
+
+```js
+import {Formik, Form, useField} from "formik";
+
+function Input({label, ...props}) {
+	const [field, meta, helpers] = useField(props)
+	return (
+		<label>
+			{label}
+			<input {...field} {...props}/>
+		</label>
+	)
+}
+
+function Textarea({label, ...props}) {
+	const [field, meta, helpers] = useField(props)
+	return (
+		<label>
+			{label}
+			<textarea {...field} {...props}/>
+		</label>
+	)
+}
+
+function Select({label, options, ...props}) {
+	const [field, meta, helpers] = useField(props)
+	return (
+		<label>
+			{label}
+			<select {...field} {...props}>
+				{options.map((option, key) => <option value={option.key} key={option.key}>{option.value}</option>)}
+			</select>
+		</label>
+	)
+}
+
+function Checkbox({label, ...props}) {
+	const [field, meta, helpers] = useField(props)
+	const clickHandle = () => {
+		helpers.setValue(!field.value)
+	}
+	return (
+		<label onClick={clickHandle}>
+			<span style={{display: 'inline-block', width: 20, height: 20, backgroundColor: field.value ? 'red' : '#eee'}}/>
+			{label}
+		</label>
+	)
+}
+
+function Radio({label, options, ...props}) {
+	const [field, meta, helpers] = useField(props)
+	const clickHandle = value => {
+		helpers.setValue(value)
+	}
+	return <>
+		<h6>{label}</h6>
+		{options.map((option, key) => (
+			<label key={key} onClick={() => clickHandle(option.key)}>
+				<span style={{display: 'inline-block', width: 20, height: 20, borderRadius: '50%', backgroundColor: field.value === option.key ? 'red' : '#eee'}}/>
+				{option.value}
+			</label>
+		))}
+	</>
+}
+
+function File({label, ...props}) {
+	const [field, meta, helpers] = useField(props)
+	const changeHandle = e => {
+		helpers.setValue(e.target.files[0])
+	}
+	return (
+		<label>
+			{label}
+			<input type="file" onChange={changeHandle}/>
+			Seçilen dosya = {field?.value?.name}
+		</label>
+	)
+}
+
+export default function Home() {
+	return (
+		<Formik initialValues={{
+			name: 'Tayfun',
+			surname: '',
+			about: '',
+			rules: false,
+			level: 'junior',
+			gender: '2',
+			avatar: false,
+			skills: ['php', 'css']
+		}} onSubmit={(values, actions) => {
+			console.log(values)
+			console.log(actions)
+		}}>
+			{({isSubmitting}) => (
+				<Form>
+					<Input label="Ad" name="name"/> <br/>
+					<Textarea label="Hakkımda" name="about"/> <br/>
+					<Select label="Cinsiyet" name="gender" options={[
+						{key: '1', value: 'Erkek'},
+						{key: '2', value: 'Kadın'}
+					]}/> <br/>
+					<Select label="Yetenekler" name="skills" multiple={true} options={[
+						{key: 'css', value: 'CSS'},
+						{key: 'javascript', value: 'Javascript'},
+						{key: 'php', value: 'php'}
+					]}/> <br/>
+					<Checkbox label="Kuralları kabul ediyorum" name="rules"/> <br/>
+					<Radio label="Seviye" name="level" options={[
+						{key: 'beginner', value: 'Başlangıç'},
+						{key: 'junior', value: 'Jr. Dev'},
+						{key: 'senior', value: 'Sr. Dev'}
+					]} /> <br/>
+					<File label="Avatar" name="avatar" /> <br/>
+					<button type="submit">Gönder</button>
+				</Form>
+			)}
+		</Formik>
+	)
+}
+```
+
+### Yup ile Validasyon
+
+Formik'te validasyon işlemleri yapmak yerine Yup paketini kullanarak çok daha efektik bir şekilde yönetebiliriz. Zaten formik'i yazan arkadaşlarda Yup'a özel bir entegrasyon yapmışlar, kolayca kullanabiliyoruz.
+
+#### Kurulum
+
+İlk olarak yupu şöyle kuralım:
+
+```shell
+npm i yup
+```
+
+#### Varsayılan Mesajları Ayarlamak
+
+İlk olarak `validations/` diye bir klasör oluşturun ve `validation.js` dosyasına şunları yazın.
+
+```js
+import * as Yup from "yup";
+
+Yup.setLocale({
+    mixed: {
+        required: 'Bu alanı doldurmanız gerekiyor.'
+    },
+    string: {
+        email: 'Geçerli bir e-posta adresi girin.',
+        min: 'Bu alan minimum ${min} karakter olmalıdır.',
+        max: 'Bu alan maksimum ${max} karakter olmalıdır.',
+        url: 'Geçerli bir URL girmelisiniz.'
+    },
+    boolean: {
+        oneOf: 'Bu alanı işaretlemeniz gerekiyor.'
+    }
+})
+
+export default Yup
+```
+
+Artık bir validasyon dosyamız şöyle olmalı:
+
+```js
+import Yup from "./validation"
+
+export const UserSchema = Yup.object().shape({
+	name: Yup.string()
+		.required(),
+	surname: Yup.string()
+		.required()
+});
+```
+
+Ve formik ile kullanırken:
+
+```js
+import { UserSchema } from "./validations/UserSchema"
+<Formik ... validationSchema={UserSchema} >
+```
+
+Yukarıdaki örneğimize ait validasyon işlemleri için:
+
+```js
+import Yup from "./validation"
+
+export const SampleSchema = Yup.object().shape({
+	name: Yup.string().required(),
+	surname: Yup.string().required(),
+	about: Yup.string().required(),
+	gender: Yup.string().required(),
+	rules: Yup.boolean().oneOf([true]),
+	skills: Yup.array().test({
+		message: 'En az 2 seçenek seçin',
+		test: arr => arr.length >= 2
+	}),
+	avatar: Yup.mixed().test({
+		message: 'Bir dosya seçin!',
+		test: file => file?.name
+	})
+});
+```
