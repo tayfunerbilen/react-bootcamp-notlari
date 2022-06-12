@@ -429,3 +429,39 @@ generatePath("/files/:type/*", {
   "*": "cat.jpg",
 }); // "/files/img/cat.jpg"
 ```
+
+Ayrıca route'ı isimlendirerek ve `generatePath()` ile birlikte isimli olarakta kullanabilirdik: Örneğin:
+
+```js
+import routes from "./Routes";
+import { generatePath } from "react-router-dom"
+
+export const getPath = (path, data = {}) => {
+	let route
+	path.split('.').map((current, index) => {
+		if (index === 0) {
+			route = routes.find(r => r.name === current)
+		} else {
+			route = route.children.find(r => r.name === current)
+		}
+	})
+	return generatePath(route.path, data)
+}
+```
+
+Bu işlemi `reduce()` ile yapmak isteseydik:
+
+```js
+export const getPath = (path, data = {}) => {
+	let route = path.split('.').reduce((route, current) => {
+			return !route ?
+				routes.find(r => r.name === current) :
+				route.children.find(r => r.name === current)
+	}, false)
+	return generatePath(route.path, data)
+}
+```
+
+## Formik ile Form İşlemleri
+
+Form'ları daha kontrollü bir şekilde yönetmek için `formik` gibi form paketlerini kullanabiliriz. Bir çok farklı form paketi mevcut, biz formik'i inceleyeceğiz.
