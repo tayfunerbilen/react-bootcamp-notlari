@@ -23,6 +23,9 @@
       - [reduce() metodu](./Gun-1.md#reduce-metodu)
       - [find() metodu](./Gun-1.md#find-metodu)
       - [findIndex() metodu](./Gun-1.md#findindex-metodu)
+
+---------
+
 - Gün 2 - Ders Notları - [Okumak için tıklayın >](./Gun-2.md)
   - [Terminal](./Gun-2.md#terminal)
   - [React Kurulumu](./Gun-2.md#react-kurulumu)
@@ -56,6 +59,9 @@
   - [Context Yapısı](./Gun-2.md#context-yapısı)
     - [Kullanımı](./Gun-2.md#kullanımı)
     - [Daha İyi Kullanımı](./Gun-2.md#daha-i̇yi-kullanımı)
+
+---------
+
 - Gün 3 - Ders Notları - [Okumak için tıklayın >](./Gun-3.md)
   - [Fetch API](./Gun-3.md#fetch-api)
   - [React Router](./Gun-3.md#react-router)
