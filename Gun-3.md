@@ -465,3 +465,102 @@ export const getPath = (path, data = {}) => {
 ## Formik ile Form İşlemleri
 
 Form'ları daha kontrollü bir şekilde yönetmek için `formik` gibi form paketlerini kullanabiliriz. Bir çok farklı form paketi mevcut, biz formik'i inceleyeceğiz.
+
+
+### Kurulum
+
+Kurmak için:
+
+```shell
+npm i formik
+```
+
+### Kullanım
+
+En basit haliyle kullanımı ise şu şekilde:
+
+```js
+import {Formik} from "formik";
+
+export default function Home() {
+	return (
+		<Formik initialValues={{
+			name: 'Tayfun',
+			surname: ''
+		}} onSubmit={(values, actions) => {
+			console.log(values)
+			console.log(actions)
+		}}>
+			{({values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting}) => (
+				<form onSubmit={handleSubmit}>
+					<input type="text" name="name" value={values.name} onChange={handleChange}/> <br/>
+					<input type="text" name="surname" value={values.surname} onChange={handleChange}/> <br/>
+					<button type="submit" disabled={isSubmitting}>Gönder</button>
+				</form>
+			)}
+		</Formik>
+	)
+}
+```
+
+Formik'in verdiği componentleri kullanarak yönetmek istersek:
+
+```js
+import {Formik, Form, Field, ErrorMessage} from "formik";
+
+export default function Home() {
+	return (
+		<Formik initialValues={{
+			name: 'Tayfun',
+			surname: '',
+			about: '',
+			rules: false,
+			level: 'junior',
+			gender: '2',
+			skills: ['php', 'css']
+		}} onSubmit={(values, actions) => {
+			console.log(values)
+			console.log(actions)
+		}}>
+			{({isSubmitting}) => (
+				<Form>
+					<Field type="text" name="name" /> <br/>
+					<Field type="text" name="surname" /> <br/>
+					<Field name="about" component="textarea" /> <br/>
+					<div>
+						<label>
+							<Field type="radio" value="beginner" name="level" />
+							Beginner
+						</label>
+						<label>
+							<Field type="radio" value="junior" name="level" />
+							Junior
+						</label>
+						<label>
+							<Field type="radio" value="senior" name="level" />
+							Senior
+						</label>
+					</div>
+					<label>
+						<Field type="checkbox" name="rules" />
+						Kuralları kabul et
+					</label> <br/>
+					<Field component="select" name="gender">
+						<option>Seçin</option>
+						<option value="1">Erkek</option>
+						<option value="2">Kadın</option>
+					</Field> <br/>
+					<Field component="select" multiple={true} name="skills">
+						<option>Seçin</option>
+						<option value="php">php</option>
+						<option value="javascript">javascript</option>
+						<option value="css">css</option>
+						<option value="html">html</option>
+					</Field> <br/>
+					<button type="submit" disabled={isSubmitting}>Gönder</button>
+				</Form>
+			)}
+		</Formik>
+	)
+}
+```
