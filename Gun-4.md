@@ -110,3 +110,183 @@ export default function Header() {
 
 Gördüğünüz gibi yapı Context API + reducer kullanımına çok benziyor. Yine bir `dispatch()` metodumuz var ve `site.js` içinde export ettiğimiz reducer'ları çalıştırmamızı sağlıyor.
 
+### Component Dışında State'lere Erişmek ve Kullanmak
+
+Bazen component dışında da state'lere erişmek ya da state'lerin değerlerini değiştirmek isteriz. Örneğin sorguları yönettiğimiz js dosyamızda state'lerden bir değer almamız icap edebilir. Bu gibi durumlarda `store` dosyasını çağırıyoruz.
+
+```js
+import store from "./store"
+
+store.getState() // stateleri öner
+store.dispatch(..) // bir reducer çalıştırmamızı sağlar
+```
+
+## React Query ile İstekleri Global Olarak Yönetmek
+
+Çoğu zaman istekleri yönetmek istediğimizde zorlanabiliriz. Örneğin post'ları çektiğimiz bir sayfamız olsun, birkaç state tanımlayarak başlarız:
+
+```js
+const [loading, setLoading] = useState(false)
+const [posts, setPosts] = useState(false)
+```
+
+Daha sonra `useEffect()` ile component ilk kez yüklendiğinde gidip isteği atarız, ona göre durumları belirleriz.
+
+```js
+useEffect(() => {
+  setLoading(true)
+  fetchPosts()
+    .then(res => setPosts(res))
+}, [])
+```
+
+Ancak bu süreç biraz yorucu olabilir, query'leri yani sorgularınızı yönetmek için react query kullanmak projelerde işinizi çok kolaylaştıracaktır.
+
+### Kurulum
+
+Projemize react-query paketini kurarak başlayalım:
+
+```shell
+npm i react-query
+```
+
+### Kullanım
+
+İlk olarak `index.js` de provider'ı sarmalamak gerekiyor.
+
+```js
+import { QueryClient, QueryClientProvider } from "react-query"
+
+const queryClient = new QueryClient()
+
+render(
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+)
+```
+
+### Sorgular
+
+Artık sorgularımızı `useQuery()` hook'u ile kolayca yönetebiliriz:
+
+```js
+const info = useQuery('todos', fetchTodoList)
+```
+
+> Burada `fetchTodoList` bir Promise döndüren metod olmalı. Yani sorgular mutlaka promise dönen bir metod olarak tanımlanmalı.
+
+Burada `useQuery` bize bir obje dönüyor.
+
+- isLoading - Yüklenme aşamasında true olarak döner
+- isError - Denemeler sonucu bir hata olursa true döner
+- isSuccess - İşlem başarılıysa true döner
+- isIdle - Sorgu disable ise true döner
+- error - `isError` true olduğunda hataları döner
+- data - `isSuccess` true olduğunda verileri döner
+- isFetching - Bir veri çekiliyorsa (arkaplanda çekilmesi dahil) true döner
+
+Buna bağlı olarak kodumuzu şöyle düzenleyebilirdik:
+
+```js
+import { useQuery } from "react-query"
+
+function TodoApp() {
+  const { isLoading, isError, error, data } = useQuery('todos', fetchTodoList)
+  
+  if (isLoading) return 'Yükleniyor..'
+  if (isError) {
+    return <pre>{JSON.stringify(error, null, 2)}</pre>
+  }
+  
+  return <pre>{JSON.stringify(data, null, 2)}</pre>
+  
+}
+```
+
+### Sorgu Key'leri
+
+Her sorgu bir isimle tutulur. Yukarıdaki örneğimizde ismi `todos` idi. Ve her sorgu key'ler alabilir, bunu şöyle düşünün sayfa değiştiğinde sorgunun yeniden tetiklenmesini istersiniz değil mi? İşte bu gibi durumlarda sorgu key'lerini kullanacaksınız. Bu bir string olabilir, obje olabilir, array olabilir, canınız ne isterse ekleyin :)
+
+```js
+useQuery('todos') // ['todos']
+useQuery(['todo', page]) // ['todos', 2]
+useQuery(['todo', {
+  page: 1
+}]) // ['todos', {page: 1}]
+```
+
+> Not: Eğer sorgularınızda bu state'lere bağlı olarak değişecekse method'da bunları belirtmeyi unutmayın.
+
+### Sorgu Fonksiyon Değişkenleri
+
+`useQuery()` metoduna 2. parametre olarak sorgu metodumuzu ekliyoruz. Ve dilersek bu sorgu metodumuz içerisinde sorgu key'lerine erişebiliriz.
+
+```js
+function fetchTodoList({.queryKey }) {
+  console.log(queryKey)
+}
+
+...
+
+useQuery(['todos', { page: 2 }], fetchTodoList)
+```
+
+### `enabled` ile Sorgu Bekletme
+
+Bazen sorgumuzu yazmak ama çalıştırma eylemi için bir aksiyon olarak bunu gerçekleştirmek isteyebiliriz. Örneğin sorgumzu hazırlarız, ancak bir buton'a basıldığında çalışmasını isteyebiliriz. İşte bu gibi durumlar için bekleme modunda kalması adına `enabled` değerini kullanabiliriz.
+
+```js
+useQuery('todos', getTodos, {
+  enabled: false
+})
+```
+
+Buradaki `false` değeri bir state'e bağlı olursa ve butona basınca bu state true olarak güncellenirse sorgumuz çalışacaktır.
+
+Ayrıca `useQuery` altında gelen `refetch` ile de yeniden sorgulama işlemini yapabilirsiniz.
+
+### `refetchOnWindowFocus` ile Sorgu Tazeleme
+
+Bazen kullanıcı tarayıcıda başka bir taba geçtiğinde ya da focus'unu kaybettiğinde ve siteye geri döndüğünde mevcut sorguların yeniden çalıştıırlıp güncel veriyi almasını isteyebilirsiniz. React Query zaten böyle çalışıyor :D Ama bazen de bunu istemeyebilirsiniz, işte `refetchOnWindowFocus` ile bunu belirleyebilirsiniz.
+
+```js
+useQuery('todos', getTodos, {
+  refetchOnWindowFocus: false
+})
+```
+
+Focus işleminde artık yeniden çekmeye çalışmayacaktır.
+
+### `retry` ile Hata Denemesi
+
+Bir istek hata vermeden önce kaç defa yeniden denenmeli bunu bu değer ile belirtebilirsiniz.
+
+```js
+useQuery('todos', getTodos, {
+  retry: 10
+})
+```
+
+10 kere denedikten sonra hala hata veriyorsa o zaman hatayı döndürecektir.
+
+### `keepPreviousData` ile Önceki Veriyi Tutmak
+
+Bazen özellikle sayfalama işlemlerinde 2. sayfaya geçerken 1. sayfanın verisi kaybolur. Bu süreci eski veri kaybolmadan yapmak ve yeni veri geldiğinde eskisiyle değiştirilmesini isterseniz bu değeri kullanabilirsiniz.
+
+```js
+useQuery('todos', getTodos, {
+  keepPreviousData: true
+})
+```
+
+### `invalidateQueries` ile Sorguları Geçersiz Kılmak
+
+Sorgularınız artık güncelliğini yitirmişse örneğin yeni bir veri eklediniz ve son halini çektirmek istiyorsunuz, mevcut sorgunuzu invalidate ederek bu işlemi sağlayabilirsiniz.
+
+> Bu işlemi daha sonra mutate ile yapmayı öğreneceğiz.
+
+```js
+queryClient.invalidateQueries('todos')
+queryClient.invalidateQueries(['todos', { page: 1 }])
+```
