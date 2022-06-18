@@ -86,3 +86,22 @@
     - [Kullanım](./Gun-3.md#kullanım)
     - [useField() ile Custom Componentler](./Gun-3.md#usefield-ile-custom-componentler)
     - [Yup ile Validasyon](./Gun-3.md#yup-ile-validasyon)
+
+---------
+
+- Gün 4 - Ders Notları - [Okumak için tıklayın >](./Gun-4.md)
+  - [Redux Toolkit ile Global State Yönetimi](./Gun-4.md#redux-toolkit-ile-global-state-yönetimi)
+    - [Kurulum](./Gun-4.md#kurulum)
+    - [Kullanım](./Gun-4.md#kullanımı)
+    - [Component Dışında State'lere Erişmek ve Kullanmak](./Gun-4.md#component-dışında-statelere-erişmek-ve-kullanmak)
+  - [React Query ile İstekleri Global Olarak Yönetmek](./Gun-4.md#react-query-ile-i̇stekleri-global-olarak-yönetmek)
+    - [Kurulum](./Gun-4.md#kurulum-1)
+    - [Kullanım](./Gun-4.md#kullanım)
+    - [Sorgular](./Gun-4.md#sorgular)
+    - [Sorgu Key'leri](./Gun-4.md#sorgu-keyleri)
+    - [Sorgu Fonksiyon Değişkenleri](./Gun-4.md#sorgu-fonksiyon-değişkenleri)
+    - [`enabled` ile Sorgu Bekletme](./Gun-4.md#enabled-ile-sorgu-bekletme)
+    - [`refetchOnWindowFocus` ile Sorgu Tazeleme](./Gun-4.md#refetchonwindowfocus-ile-sorgu-tazeleme)
+    - [`retry` ile Hata Denemesi](./Gun-4.md#retry-ile-hata-denemesi)
+    - [`keepPreviousData` ile Önceki Veriyi Tutmak](./Gun-4.md#keeppreviousdata-ile-önceki-veriyi-tutmak)
+    - [`invalidateQueries` ile Sorguları Geçersiz Kılmak](./Gun-4.md#invalidatequeries-ile-sorguları-geçersiz-kılmak)
