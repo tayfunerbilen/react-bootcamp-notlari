@@ -290,3 +290,81 @@ Sorgularınız artık güncelliğini yitirmişse örneğin yeni bir veri ekledin
 queryClient.invalidateQueries('todos')
 queryClient.invalidateQueries(['todos', { page: 1 }])
 ```
+
+### Mevcut Dataya Yenisini Eklemek
+
+Örneğin `todos` ismiyle istek atıp değerleri çekiyoruz. Peki yeni bir todo eklemek istediğimizde, bu değeri nasıl güncelleyeceğiz?
+
+Ya yukarıda `invalidateQueries()` ile isteği geçersiz kılarak yenisini çektireceğiz ki bu saçma olur, ya da şöyle yapacağız:
+
+```js
+import { useQueryClient } from "react-query"
+
+const queryClient = useQueryClient()
+
+const submitHandle = async () => {
+  const todo = await newTodo({
+    title: 'todo 1',
+    done: false
+  })
+  
+  // mevcut todoları getir
+  const previousTodos = queryClient.getQueryData('todos')
+  
+  // Yeni todo ile birlikte güncelle
+  queryClient.setQueryData('todos', old => [todo, ...old])
+  
+}
+```
+
+### Mutation
+
+Sorguların aksine mutation'lar oluşturma/güncelleme/silme işlemlerini yönetmek için kullanılır. Bu amaç içinde, `useMutation()` hooku kullanılır. Örnek bir kullanım şöyledir:
+
+```js
+import { useMutation } from "react-query"
+
+export default function NewTodo() {
+  
+  const mutation = useMutation(newTodo)
+  
+  return (
+    <>
+      {mutation.isLoading && 'Ekleniyor..'}
+      {mutation.isError && 'Bir hata oluştu'}
+      {mutation.isSuccess && 'Todo başarıyla eklendi'}
+      
+      <button onClick={() => {
+        mutation.mutate({
+          title: 'todo 1',
+          done: false
+        })
+      }}>
+        Todo Ekle
+      </button>
+    </>
+  )
+  
+}
+```
+
+Ayrıca `mutate` metoduna 2. parametre olarak bir obje verilip `onSuccess`, `onError` gibi durumlarda mevcut data güncellemesi yapılabilirdi.
+
+> Bunun için bir önceki örneği ele alıp test edebilirsiniz.
+
+### `broadcastQueryClient` ile Tab/Pencere Arası Senkronizasyon
+
+Henüz deneysel bir çalışma olsada 2 farklı tabı senkron etmek istediğinizde bu eklentiyi kullanabilirsiniz. Ekstra olarak yüklemenize gerek yok, react-query ile birlikte geliyor. `index.js` e şu şekilde çağırıp dahil edebilirsiniz:
+
+```js
+import { broadcastQueryClient } from 'react-query/broadcastQueryClient-experimental'
+
+const queryClient = new QueryClient()
+
+broadcastQueryClient({
+  queryClient,
+  broadcastChannel: 'my-app',
+})
+```
+
+Artık 2 farklı tab react-query ile bir işlem yapıldığında senkron hale gelecek, denemesi bedava :)
