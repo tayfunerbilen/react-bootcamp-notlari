@@ -368,3 +368,142 @@ broadcastQueryClient({
 ```
 
 Artık 2 farklı tab react-query ile bir işlem yapıldığında senkron hale gelecek, denemesi bedava :)
+
+## React i18next ile Dil Sistemi
+
+React ile proje geliştirirken, dil sistemine de mutlaka ihtiyaç duyacağız. Bu gibi durumlarda bu işin altından hakkıyla kalkmak için `react-i18n` paketine ihtiyacımız olacak.
+
+### Kurulum
+
+Kurmak için:
+
+```shell
+npm i react-i18next i18next
+```
+
+### Kullanım
+
+İlk olarak `i18n.js` dosyası oluşturup şu şekilde kodlarımızı yazalım.
+
+```js
+import i18n from "i18next";
+import {initReactI18next} from 'react-i18next';
+```
+
+Ve hemen altında ufak bir çeviri ekleyelim ingilizce ve türkçe için.
+
+```js
+const resources = {
+	en: {
+		translation: {
+			welcome: 'Welcome to React'
+		}
+	},
+	tr: {
+		translation: {
+			welcome: 'React\'e Hoşgeldin'
+		}
+	}
+}
+```
+
+Ve ayarlarımızı başlatalım.
+
+```js
+i18n
+	.use(initReactI18next)
+	.init({
+		resources,
+		lng: 'en'
+	})
+  
+export default i18n
+```
+
+`i18n.js` dosyasını `index.js` e çağırdıktan sonra hazırız.
+
+Artık component'ler içinde kullanmaya hazırız. Örneğin `App` componentimizde şu şekilde kullanabiliriz:
+
+```js
+import { useTranslation } from "react-i18next";
+
+function App() {
+  
+  const { t, i18n } = useTranslation()
+
+  return (
+    <>
+      <h1>{t('welcome')}</h1>
+      <button onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'tr' : 'en')}>Dili Değiştir</h1>
+    </>
+  )
+}
+```
+
+### Dil Dosyalarını Ayırmak
+
+Inline olarak dil kodları tanımlamak elbette çok mantıklı değil, `public/locales` altında dil dosyalarını ayrı ayrı tutmak isteyebiliriz. Bunun için şu paketi kuracağız:
+
+```shell
+npm i i18next-http-backend
+```
+
+Ve setup'a şöyle dahil edeceğiz:
+
+```js
+import Backend from 'i18next-http-backend';
+
+i18n
+  .use(Backend)
+	.use(initReactI18next)
+	.init({
+		lng: 'en'
+	})
+```
+
+Ve örnek dil dosyalarımız tr ve en dilinde olacaksa dosya yapısı şöyle olmalı:
+
+- public/locales/en/translation.json
+- public/locales/tr/translation.json
+
+Örnek `translation.json` dosyası ise şöyle olmalı:
+
+```json
+{
+  "welcome": "Welcome to React"
+}
+```
+
+### Varsayılan Tarayıcı Dilini Tespit Etmek
+
+Varsayılan tarayıcı diline göre dil dosyası yükletmek için şu paketi kurmamız lazım:
+
+```shell
+npm i i18next-browser-languagedetector
+```
+
+Ve setup'ımız şöyle olmalı:
+
+```js
+import LanguageDetector from 'i18next-browser-languagedetector';
+
+i18n
+  .use(Backend)
+	.use(LanguageDetector)
+	.use(initReactI18next)
+	.init({
+		fallbackLng: 'en'
+	})
+```
+
+Artık tarayıcının dil dosyası ne ise onu kullanmaya çalışacak, eğer ilgili dile ait bir dosya yoksa `fallbackLng` altındaki mevcut dil dosyasını gösterecektir.
+
+### Çevirilere React Componentleri Dışında Erişmek
+
+Böyle bir ihtiyaç halinde `i18n.js` dosyasını import edip içindeki `t` metodunu kullanabilirsiniz:
+
+```js
+import i18n from "./i18n"
+
+console.log(i18n.t('welcome'))
+```
