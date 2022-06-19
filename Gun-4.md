@@ -223,7 +223,7 @@ useQuery(['todo', {
 `useQuery()` metoduna 2. parametre olarak sorgu metodumuzu ekliyoruz. Ve dilersek bu sorgu metodumuz içerisinde sorgu key'lerine erişebiliriz.
 
 ```js
-function fetchTodoList({.queryKey }) {
+function fetchTodoList({ queryKey }) {
   console.log(queryKey)
 }
 
