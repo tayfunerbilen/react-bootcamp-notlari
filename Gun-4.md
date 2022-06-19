@@ -507,3 +507,51 @@ import i18n from "./i18n"
 
 console.log(i18n.t('welcome'))
 ```
+
+### `withTranslation()` HOC
+
+`withTranslation` higher order function'ı kullanarak component'e prop olarak `i18n` ve `t` parameterleri geçilebilirdi:
+
+```js
+import { withTranslation } from 'react-i18next';
+
+function MyComponent({ t, i18n }) {
+  return <p>{t('my translated text')}</p>
+}
+
+export default withTranslation()(MyComponent);
+```
+
+### Interpolation
+
+Dinamik değerlerinizi çeviriye dahil etmek için kullanabilirsiniz. Örneğin dil dosyanızda `framework` adını dinamik alacaksanız şu şekilde düzenleyecksiniz:
+
+```json
+{
+	"welcome": "Welcome to {{framework}}"
+}
+```
+
+Ve gösterirken de şöyle göndereceksiniz:
+
+```js
+t('welcome', { framework: 'React' })
+```
+
+Ayrıca obje olarakda gönderebilirdik:
+
+```js
+const framework = {
+	name: 'React'
+}
+
+t('welcome', { framework })
+```
+
+Dil dosyasında şöyle kullanmamız gerekirdi:
+
+```json
+{
+	"welcome": "Welcome to {{framework.name}}"
+}
+```
