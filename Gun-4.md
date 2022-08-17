@@ -474,6 +474,31 @@ Ve örnek dil dosyalarımız tr ve en dilinde olacaksa dosya yapısı şöyle ol
 }
 ```
 
+### Dil Dosyalarını Ayrı Bir Backendden Çekmek
+
+Eğer react projesi içinde değilde ayrı bir backendden dilleri çekmek istiyorsanız, yukarıdaki adıma ek olarak, `init()` metodu içinde şu şekilde bir ayar vermemiz gerekiyor. Diyelim ki backend için dil yükleme metodumuz şu olsun:
+
+```
+https://api.prototurk.com/language/tr
+https://api.prototurk.com/language/en
+```
+
+Burada `tr` ve `en` dinamik olarak şöyle gönderilerek yüklenebilir:
+
+```js
+i18n
+	.use(Backend)
+	.use(initReactI18next)
+	.init({
+		lng: 'en',
+		backend: {
+			loadPath: 'https://api.prototurk.com/language/{{lng}}'
+		}
+	})
+```
+
+Ek olarak backend tarafında CORS izinleri verilmiş olması gerekiyor. Detaylı bilgi için [şuraya](https://enable-cors.org/index.html) bakabilirsiniz.
+
 ### Varsayılan Tarayıcı Dilini Tespit Etmek
 
 Varsayılan tarayıcı diline göre dil dosyası yükletmek için şu paketi kurmamız lazım:
