@@ -116,3 +116,13 @@
     - [Çevirilere React Componentleri Dışında Erişmek](./Gun-4.md#çevirilere-react-componentleri-dışında-erişmek)
     - [`withTranslation()` HOC](./Gun-4.md#withtranslation-hoc)
     - [Interpolation](./Gun-4.md#interpolation)
+
+---------
+
+- Gün 5 - Ders Notları - [Okumak için tıklayın >](./Gun-5.md)
+  - [NPM'de Paket Paylaşmak](./Gun-5.md#npmde-paket-paylaşmak)
+    - [Kurulum](./Gun-5.md#kurulum)
+    - [Yayınlama](./Gun-5.md#yayınlama)
+    - [Sürüm Güncelleme](./Gun-5.md#sürüm-güncelleme)
+    - [Paket Kaldırma](./Gun-5.md#paket-kaldırma)
+  - [Gerçek Zamanlı İşlemler (Realtime Socket)](./Gun-5.md#gerçek-zamanlı-i̇şlemler-realtime-socket)
