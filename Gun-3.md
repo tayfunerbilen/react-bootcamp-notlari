@@ -717,6 +717,10 @@ export default function Home() {
 }
 ```
 
+### `enableReinitialize` Propu
+
+Bir kere `initialState` ile yüklendikten sonra, state değişse bile form kendini yeniden render etmiyor. Bu da bazı problemleri beraberinde getiriyor, bu gibi durumlarda state değiştiğinde formun kendini yeniden render etmesi için `<Formik>` componentinde `enableReinitialize` propunu `true` olarak belirleyebilirsiniz.
+
 ### Yup ile Validasyon
 
 Formik'te validasyon işlemleri yapmak yerine Yup paketini kullanarak çok daha efektik bir şekilde yönetebiliriz. Zaten formik'i yazan arkadaşlarda Yup'a özel bir entegrasyon yapmışlar, kolayca kullanabiliyoruz.
